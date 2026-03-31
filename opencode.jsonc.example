@@ -11,8 +11,7 @@
         "claude-opus-4-6@default": {
           "options": {
             "thinking": {
-              "type": "enabled",
-              "budgetTokens": 30000
+              "type": "adaptive"
             }
           }
         }

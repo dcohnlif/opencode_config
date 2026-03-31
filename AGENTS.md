@@ -1,5 +1,9 @@
 # Global Rules
 
+## Model & Thinking Requirements
+
+Always use the latest Claude model (currently Claude Opus 4.6) with maximum thinking enabled. The config must specify adaptive thinking (`"type": "adaptive"`) which gives the model full autonomy over its reasoning depth — this is the highest thinking mode available for Claude 4.6+. Both the primary agent and all subagents (including the auditor) must use this configuration. Do not downgrade models or reduce thinking to save cost or latency.
+
 ## Priority: Correctness Over Cost
 
 I do not care about token cost, execution time, or convenience shortcuts. Always optimize for **robustness and correctness** above all else.
