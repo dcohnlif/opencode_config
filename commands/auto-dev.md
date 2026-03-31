@@ -35,12 +35,28 @@ This command orchestrates a complete development loop using dedicated subagents:
 
 **STOP: Do NOT begin Phase 3 until the user has approved the code review results.**
 
-## Phase 3: Commit & Push
+## Phase 3: Validation & Testing
 
 **You may ONLY reach this phase after BOTH auditor reviews have been completed and the user has approved the results.**
 
 1. Apply any final approved fixes.
-2. **MANDATORY -- Delegate to Git Agent**: You MUST use the `Task` tool to launch a `general` subagent (the "git agent") to handle all git operations. Provide it with the full context of what was changed and why. The git agent MUST:
+2. **MANDATORY -- Human Control Gate 3**: Ask the user what command to run to test the changes (e.g., a test suite, a script, a build command, a specific function). STOP and WAIT for user input. Do NOT proceed until the user responds.
+3. **Run the test**: Execute the test command provided by the user.
+4. **If the test PASSES**: Proceed to Phase 4.
+5. **If the test FAILS**: Enter the bug-fix loop:
+   a. Use the `Task` tool to launch a `general` subagent (the "bug-fix agent") with the test failure output, the full diff, and the relevant file contents. The bug-fix agent diagnoses and fixes the issue.
+   b. Re-run the same test command automatically (no need to ask the user).
+   c. If the test **passes**, proceed to Phase 4.
+   d. If the test **fails again**, repeat from step (a). Limit the bug-fix loop to a maximum of **3 iterations**.
+   e. If after 3 iterations the test still fails, STOP and present the failure to the user. Ask how to proceed. Do NOT continue to Phase 4.
+
+**STOP: Do NOT begin Phase 4 until the test has passed.**
+
+## Phase 4: Commit & Push
+
+**You may ONLY reach this phase after all tests have passed.**
+
+1. **MANDATORY -- Delegate to Git Agent**: You MUST use the `Task` tool to launch a `general` subagent (the "git agent") to handle all git operations. Provide it with the full context of what was changed and why. The git agent MUST:
    - Run `git status` and `git diff`.
    - Stage changes: `git add -A`.
    - Generate a detailed commit message including:
