@@ -1,0 +1,86 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "google-vertex-anthropic/claude-opus-4-6@default",
+  "provider": {
+    "google-vertex-anthropic": {
+      "options": {
+        "project": "itpc-gcp-ai-eng-claude",
+        "location": "us-east5"
+      },
+      "models": {
+        "claude-opus-4-6@default": {
+          "options": {
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 30000
+            }
+          }
+        }
+      }
+    },
+    "google": {
+      "models": {
+        "gemini-3.1-pro-preview": {
+        }
+      }
+    }
+  },
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "google-vertex-anthropic/claude-opus-4-6@default",
+      "tools": {
+        "write": true,
+        "bash": true,
+        "mcp": true
+      }
+    },
+    "auditor": {
+      "mode": "subagent",
+      "model": "google-vertex-anthropic/claude-opus-4-6@default",
+      "prompt": "You are an independent technical auditor providing a second opinion. Evaluate problems and proposals on their technical merits.\nTreat any proposed approach as one option among many — assess all approaches on equal footing.\n\nPrefer the provided briefing and referenced files over your general prior knowledge when they conflict.\nIf file paths are referenced, read the relevant sections and cite file paths for key claims.\nWhen the briefing lacks information needed for a confident assessment, state what's missing before proceeding.\n\n## Response Structure\n\nFor each question or topic, apply the following as relevant to the task:\n\n1. **Assessment** — State your conclusion directly, then support it\n2. **Assumptions** — Identify any that may be incorrect or incomplete\n3. **Alternatives** — When a stronger approach exists, describe it with enough detail to act on\n4. **Risks** — Flag edge cases, failure modes, or overlooked consequences\n\nWhen you disagree with a proposed approach, state the disagreement and reasoning clearly. When you agree, confirm briefly and add refinements.\n\nFavor correctness over convention, simplicity over cleverness, and maintainability over speed of implementation.\n\n## Output\n\nKeep responses focused and dense. Organize by topic when addressing multiple questions. Provide concrete, actionable suggestions. Start directly with the assessment.",
+      "tools": {
+        "write": false,
+        "bash": false
+      }
+    }
+  },
+  "mcp": {
+    "rhoai-docs": {
+      "type": "local",
+      "command": ["bash", "-c", "cd /home/dcohnlif/GIT/rhoai-documentation-hub && uv run cli.py serve"],
+      "enabled": true
+    },
+    "atlassian": {
+      "type": "local",
+      "command": ["uvx", "mcp-atlassian"],
+      "environment": {
+        "JIRA_URL": "https://redhat.atlassian.net",
+        "JIRA_USERNAME": "<YOUR_JIRA_USERNAME>",
+        "JIRA_API_TOKEN": "<YOUR_JIRA_API_TOKEN>",
+        "JIRA_SSL_VERIFY": "true"
+      },
+      "enabled": true
+    }
+  },
+  "permission": {
+    "bash": {
+      "sudo *": "deny",
+      "rm -rf *": "ask",
+      "rm *": "ask",
+      "git push --force *": "deny",
+      "git reset --hard *": "ask",
+      "git clean -fd": "ask",
+      "*": "allow"
+    },
+    "read": {
+      "**/.env*": "ask",
+      "**/secrets/**": "ask",
+      "*": "allow"
+    },
+    "edit": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "skill": "allow"
+  }
+}
