@@ -23,8 +23,8 @@ Before doing ANYTHING else, you MUST complete these two steps:
 
 2. **Create Phase Tracker**: Use the `TodoWrite` tool to create the following todos, ALL set to `pending`:
    - Phase 0: Codebase Reconnaissance
-   - Phase 1: Planning & Architecture Review
-   - Phase 2: Implementation & Code Review
+   - Phase 1: Planning & Automated Review
+   - Phase 2: Implementation & Automated Code Review
    - Phase 3: Validation & Testing
    - Phase 4: Commit & Push
 
@@ -42,10 +42,13 @@ Only after both steps are complete may you proceed to Phase 0.
    - Find files, functions, and classes relevant to the requested change.
    - Identify dependencies and imports that will be affected.
    - Locate existing test files and test commands (e.g., `pytest`, `npm test`, `make test`, `go test`, build commands).
+   - Detect code formatters/linters in use (e.g., `black`, `prettier`, `ruff`, `gofmt`, `rustfmt`).
    - Note coding patterns and conventions used in the relevant areas.
-   - Return a structured summary with: relevant files (with paths), key functions/classes, dependencies, **detected test command** (if any), and patterns to follow.
+   - Return a structured summary with: relevant files (with paths), key functions/classes, dependencies, **detected test command** (if any), **detected formatter/linter** (if any), and patterns to follow.
 
-3. **Embed Context**: Carry the project context, exploration results, and detected test command forward into all subsequent phases.
+3. **Fallback Context**: If the explore agent returns fewer than 2 relevant files, the exploration was too narrow. In this case, read the full project directory tree (use `Read` on the workspace root) and read any entry-point files (e.g., `main.py`, `index.ts`, `main.go`, `app.py`, `src/lib.rs`) to build broader context.
+
+4. **Embed Context**: Carry the project context, exploration results, detected test command, and detected formatter forward into all subsequent phases.
 
 Mark Phase 0 todo as `completed`.
 
@@ -61,15 +64,31 @@ PRE-FLIGHT CHECK:
 - [x] Phase 0: Codebase mapped
 ```
 
-1. **Analyze & Draft**: Using the codebase context from Phase 0, analyze the user's request and draft a concrete implementation plan.
-2. **The Briefing**: Prepare a briefing for the auditor. Include:
+1. **Classify Complexity**: Before preparing the auditor briefing, assess the task complexity:
+   - **Trivial**: Single-file typo fix, config value change, comment update, simple rename, adding a log line. Output `COMPLEXITY: trivial`.
+   - **Standard**: Anything else (new features, multi-file changes, logic changes, refactoring). Output `COMPLEXITY: standard`.
+   
+   If `trivial`: skip the plan audit (steps 3-4) and proceed directly to step 5 (persist plan), then to Phase 2.
+   If `standard`: proceed with the full audit below.
+
+2. **Analyze & Draft**: Using the codebase context from Phase 0, analyze the user's request and draft a concrete implementation plan.
+
+3. **The Briefing**: Prepare a briefing for the auditor. Include:
    - The problem/request.
    - The proposed plan.
    - **Codebase context** from Phase 0 (project structure, relevant files, patterns).
    - **FULL Context**: Embed the entire contents of all relevant files directly into the briefing. Do not worry about token limits; maximize context over brevity.
    - Specific areas of concern (e.g., security, edge cases, performance).
-3. **MANDATORY -- Audit**: You MUST use the `Task` tool to launch the `auditor` subagent with the briefing. Do NOT skip this step.
-4. **Auto-Incorporate Feedback**: Review the auditor's feedback. Incorporate ALL actionable suggestions into the plan automatically. If the auditor and your plan fundamentally disagree on approach, prefer the auditor's recommendation. Limit the plan review loop to a maximum of **2 iterations**.
+
+4. **MANDATORY (standard only) -- Audit**: You MUST use the `Task` tool to launch the `auditor` subagent with the briefing. Do NOT skip this step for standard-complexity tasks. Auto-incorporate ALL actionable suggestions into the plan. If the auditor and your plan fundamentally disagree on approach, prefer the auditor's recommendation. Limit the plan review loop to a maximum of **2 iterations**.
+
+5. **Persist Plan**: Write the finalized plan to `.auto-dev/plan.md` in the workspace root. Include:
+   - The original user request.
+   - Complexity classification.
+   - Codebase context summary from Phase 0.
+   - The finalized plan.
+   - Summary of auditor feedback incorporated (if applicable).
+   This enables session resumability and creates a paper trail.
 
 Mark Phase 1 todo as `completed`. Proceed immediately to Phase 2.
 
@@ -83,16 +102,21 @@ Mark Phase 1 todo as `completed`. Proceed immediately to Phase 2.
 
 PRE-FLIGHT CHECK:
 - [x] Phase 0: Codebase mapped
-- [x] Phase 1: Plan drafted and auditor reviewed
+- [x] Phase 1: Plan drafted and reviewed
 ```
 
 1. **MANDATORY -- Implement**: You MUST use the `Task` tool to launch a `general` subagent (the "coding agent") with the finalized plan and full codebase context from Phase 0. The coding agent implements the changes. Do NOT implement the code yourself -- delegate to the subagent.
-2. **The Code Briefing**: After the coding agent has completed implementation, prepare an exhaustive briefing for the auditor. Include:
+
+2. **Auto-Format**: After the coding agent completes, run the project's formatter/linter if one was detected during Phase 0 (e.g., `black .`, `prettier --write .`, `ruff format .`, `gofmt -w .`). If no formatter was detected, skip this step. This ensures the auditor focuses on logic, not style.
+
+3. **The Code Briefing**: After implementation and formatting, prepare an exhaustive briefing for the auditor. Include:
    - The complete `git diff` of all uncommitted changes.
    - The **FULL contents** of all modified files (so the auditor has perfect context of the new state).
    - Explicit instructions to prioritize deep bug hunting and security flaw identification. Ignore styling and pedantry. Do not worry about token length.
-3. **MANDATORY -- Code Audit**: You MUST use the `Task` tool to launch the `auditor` subagent with the code briefing and diff. This is NOT optional. Do NOT skip this step.
-4. **Iterate on Feedback**: If the auditor returns actionable feedback (not LGTM), send the feedback back to the coding agent (resume the same `Task` session using `task_id`) and have it apply ALL fixes. Then re-run the auditor on the updated code. Repeat until the auditor responds LGTM or the loop has run **3 times**, whichever comes first.
+
+4. **MANDATORY -- Code Audit**: You MUST use the `Task` tool to launch the `auditor` subagent with the code briefing and diff. This is NOT optional. Do NOT skip this step.
+
+5. **Iterate on Feedback**: If the auditor returns actionable feedback (not LGTM), send the feedback back to the coding agent (resume the same `Task` session using `task_id`) and have it apply ALL fixes. Then re-run the auditor on the updated code. Repeat until the auditor responds LGTM or the loop has run **3 times**, whichever comes first.
 
 Mark Phase 2 todo as `completed`. Proceed immediately to Phase 3.
 
@@ -106,7 +130,7 @@ Mark Phase 2 todo as `completed`. Proceed immediately to Phase 3.
 
 PRE-FLIGHT CHECK:
 - [x] Phase 0: Codebase mapped
-- [x] Phase 1: Plan drafted and auditor reviewed
+- [x] Phase 1: Plan drafted and reviewed
 - [x] Phase 2: Coding agent implemented changes
 - [x] Phase 2: Auditor code review passed (LGTM or 3 rounds)
 ```
@@ -139,7 +163,7 @@ Mark Phase 3 todo as `completed`.
 
 PRE-FLIGHT CHECK:
 - [x] Phase 0: Codebase mapped
-- [x] Phase 1: Plan drafted and auditor reviewed
+- [x] Phase 1: Plan drafted and reviewed
 - [x] Phase 2: Coding agent implemented changes
 - [x] Phase 2: Auditor code review passed (LGTM or 3 rounds)
 - [x] Phase 3: Tests passed (or no tests found)
@@ -153,6 +177,12 @@ PRE-FLIGHT CHECK:
    - Commit: `git commit -m "[Message]"`
    - Push: Run `git push origin [branch]`. This will execute automatically based on your config unless a destructive flag is passed.
 
+2. **Memory Writeback**: After the git agent completes successfully:
+   - If the project has an `AGENTS.md` file, append a brief section with learnings from this session (e.g., detected test command, formatter, key patterns discovered, architecture decisions made).
+   - If no `AGENTS.md` exists, create one with these learnings.
+   - Keep entries concise -- 2-3 bullet points max per session.
+   - This builds institutional memory for future sessions.
+
 Mark Phase 4 todo as `completed`.
 
 ---
@@ -163,7 +193,7 @@ The following are EXPLICIT VIOLATIONS of this workflow. You MUST NOT do any of t
 
 - **Do NOT skip Phase 0** and go straight to planning. Always map the codebase first.
 - **Do NOT implement code yourself** -- always delegate to the coding subagent via the `Task` tool.
-- **Do NOT skip the auditor** -- even if the change seems trivial. The auditor MUST review both the plan and the code.
+- **Do NOT skip the auditor** -- even for trivial tasks, the code audit in Phase 2 is mandatory (only the plan audit can be skipped for trivial tasks).
 - **Do NOT combine phases** -- each phase is a distinct step. Do not merge planning with implementation, or code review with testing.
 - **Do NOT commit broken code** -- if tests fail after 3 bug-fix attempts, STOP and ask the user. This is the only human gate.
 - **Do NOT skip the pre-flight checklist** -- you must output it before entering each phase.
