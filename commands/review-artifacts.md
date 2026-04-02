@@ -57,7 +57,7 @@ For each run with full artifacts:
 1. **Read `results.txt`**: Get the high-level pass/fail/skip status for every task.
 2. **Read `report.md`**: Analyze the narrative report for:
    - Whether the performer correctly followed the spec
-   - Whether improvisations were reasonable and well-documented
+   - **Whether any improvisations occurred** — the performer should NEVER need to improvise. Any improvisation means the spec is wrong, stale, or incomplete. Every improvisation must be flagged as a **spec defect** with a specific fix recommendation. Do not treat improvisation as acceptable or praise it as "reasonable" — it is always a failure of the spec.
    - Whether identified issues are genuine product defects vs. spec errors vs. environment gaps
    - Whether documentation issues flagged are accurate
    - Whether the recommendation is sound
@@ -227,7 +227,7 @@ Write a comprehensive QE review report as a markdown file in the artifacts direc
 - **Premature Success**: No / <evidence of premature termination>
 - **Execution Fidelity**: <Did the performer follow the spec correctly?>
 - **Outcome Assessment**: <Is the result correct?>
-- **Improvisation Quality**: <Were deviations from spec reasonable?>
+- **Improvisations**: None / <count> — each one is a spec defect to fix
 - **Issues Identified**: <Confirmed product defects vs spec errors vs env gaps>
 - **Screenshots Verified**: <Do screenshots support the reported findings?>
 - **Action Log Assessment**: <Was the browser automation clean?>
@@ -236,6 +236,7 @@ Write a comprehensive QE review report as a markdown file in the artifacts direc
 
 - **Environment Issues**: <hardware, credentials, config gaps>
 - **Spec Staleness**: <systematic terminology/navigation issues>
+- **Improvisation Catalogue**: <every improvisation across all runs, with spec-said vs UI-showed vs fix-needed>
 - **Product Defects Found**: <confirmed bugs>
 - **False Failures**: <runs that failed due to spec/env issues, not product bugs>
 - **False Passes**: <runs that passed but shouldn't have, or missed important checks>
@@ -285,6 +286,7 @@ Write a comprehensive QE review report as a markdown file in the artifacts direc
 - **Assess severity**: For real product issues, classify as: blocker, critical, major, minor.
 - **Be constructive**: Recommendations should be specific and actionable.
 - **Note fabricated features**: If a spec tests a feature that doesn't exist in RHOAI, flag it clearly as a hallucinated/fabricated feature.
+- **Zero improvisation policy**: The performer agent should NEVER need to improvise. The spec must exactly match the actual UI — correct button labels, correct navigation paths, correct control types, correct status labels, correct image names. Any time the performer had to deviate from the spec to complete a task, that is a **spec defect**, not a sign of agent cleverness. Every improvisation must be catalogued with: (1) what the spec said, (2) what the UI actually showed, (3) the specific spec fix required. A run with improvisations is not a clean pass — it passed *despite* a broken spec.
 
 ### Run Integrity Principles
 
