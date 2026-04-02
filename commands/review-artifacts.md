@@ -61,12 +61,14 @@ For each run with full artifacts:
    - Whether identified issues are genuine product defects vs. spec errors vs. environment gaps
    - Whether documentation issues flagged are accurate
    - Whether the recommendation is sound
+   - Whether all tasks defined in the spec were actually executed (not silently skipped or omitted)
 3. **Read `*-actions.md`**: Verify the browser action sequence makes sense:
    - Login procedure was followed
    - Navigation path is logical
    - Actions correspond to spec steps
    - No excessive retries or loops indicating confusion
    - Action count and duration are reasonable for the workflow complexity
+   - The action log shows the run completed naturally through all tasks and teardown (not abandoned mid-flow with a premature "success" written)
 4. **Read `log.md`**: Check observation log for:
    - Timestamps that make sense (no huge unexplained gaps)
    - Teardown was performed correctly
@@ -79,6 +81,38 @@ For each run with full artifacts:
 For runs with only `results.txt` (early failures):
 1. Read the results to understand the failure reason
 2. Assess whether the failure is a spec issue, environment issue, or product issue
+
+### Phase 3.5: Run Integrity Checks (per run)
+
+Apply these checks to every run, including runs marked COMPLETE/PASS. A passing result does not exempt a run from integrity validation.
+
+1. **Duration check**: Calculate run duration from timestamps in `log.md` or `actions.md` (first entry to last entry). Flag any run exceeding **20 minutes** as suspicious. Most browser-based workflows should complete in 10-15 minutes. Excessive duration often indicates retry loops, stuck waits, or confused navigation. Report the exact duration for every run.
+
+2. **Secrets and credential leakage scan**: Scan ALL text artifacts (`results.txt`, `report.md`, `actions.md`, `log.md`) for leaked secrets. Specifically check for:
+   - Passwords (TEST_PASSWORD, ADMIN_PASSWORD, CLUSTER_ADMIN_USER_PASSWORD)
+   - API keys and tokens (S3_SECRET_ACCESS_KEY, S3_ACCESS_KEY_ID, GIT_TOKEN, ANTHROPIC_API_KEY)
+   - Any string that matches a known credential value from the `.env` file
+   - Generic patterns: strings that look like API keys, bearer tokens, base64-encoded credentials
+   
+   **Any leaked secret is an automatic BLOCKER finding** regardless of test outcome.
+
+3. **Completion integrity**: Cross-reference the task count in `results.txt` against the number of task files in the spec's `tasks/` directory. A "COMPLETE" result with fewer executed tasks than the spec defines is a **false pass**. Also verify that no tasks were silently dropped between planning and execution.
+
+4. **Premature success detection**: Verify the run shows the full lifecycle:
+   - Login was performed
+   - All spec tasks were executed (not just the first few)
+   - Teardown was performed (if applicable)
+   - Results were written AFTER all tasks completed (not mid-run)
+   
+   Check `log.md` and `actions.md` for evidence that the run reached its natural conclusion. A run that writes "RESULT: COMPLETE" but has no teardown evidence, or whose action log ends abruptly after task 2 of 6, is a **false pass**.
+
+5. **Error-in-success detection**: Even for PASS/COMPLETE runs, search the report and logs for:
+   - Error messages that were encountered but "recovered from"
+   - Tasks that passed on retry after initial failure
+   - Warnings or anomalies that were dismissed
+   - Steps where the performer improvised around a problem and still marked PASS
+   
+   These may indicate the run passed by luck or by working around a real issue.
 
 ### Phase 4: Cross-Run Analysis
 
@@ -187,6 +221,10 @@ Write a comprehensive QE review report as a markdown file in the artifacts direc
 ## Artifact Analysis
 
 ### <workflow_name> (run timestamp)
+- **Run Duration**: <MM:SS> — <OK / FLAGGED if > 20 min>
+- **Secrets Leaked**: None / <list any found with file and line>
+- **Completion Integrity**: <N/N tasks executed> — <OK / FALSE PASS if tasks missing>
+- **Premature Success**: No / <evidence of premature termination>
 - **Execution Fidelity**: <Did the performer follow the spec correctly?>
 - **Outcome Assessment**: <Is the result correct?>
 - **Improvisation Quality**: <Were deviations from spec reasonable?>
@@ -247,6 +285,14 @@ Write a comprehensive QE review report as a markdown file in the artifacts direc
 - **Assess severity**: For real product issues, classify as: blocker, critical, major, minor.
 - **Be constructive**: Recommendations should be specific and actionable.
 - **Note fabricated features**: If a spec tests a feature that doesn't exist in RHOAI, flag it clearly as a hallucinated/fabricated feature.
+
+### Run Integrity Principles
+
+- **Scan for secrets**: Search all text artifacts for passwords, tokens, API keys, and credential values from `.env`. Cross-reference against actual values in the environment file. Any leaked secret is an automatic **blocker** regardless of test outcome. Common leakage vectors: error messages that echo connection strings, action logs that capture form field values, reports that quote environment variable values verbatim.
+- **Enforce duration limits**: Runs exceeding 20 minutes should be flagged and investigated. Most browser-based RHOAI workflows should complete in 10-15 minutes. Excessive duration often indicates retry loops, stuck waits, or confused navigation that the performer papered over.
+- **Verify completion, not just results**: A "COMPLETE" result means nothing if the run only executed 2 of 6 tasks. Always cross-reference the task count in `results.txt` against the task files in the spec's `tasks/` directory. If the counts don't match, it's a false pass.
+- **Detect premature success**: Check that the action log and log.md show the full lifecycle: login -> all tasks -> teardown -> results written. If `results.txt` was written before all tasks executed, or if the action log ends abruptly without teardown, it's a false pass regardless of what the results file says.
+- **Errors in passing runs are still findings**: A run that passed after 3 retries on a flaky step is not a clean pass. Document the retry pattern and flag the underlying issue.
 
 ### Deep-Dive Principles
 
