@@ -19,3 +19,15 @@ Specific expectations:
 - Read all relevant files fully rather than skimming. Search thoroughly rather than guessing.
 - When uncertain, investigate and verify rather than making assumptions.
 - Use the most capable model/tool available for the task at hand, even if a cheaper alternative could "probably" work.
+
+## Test Before Push
+
+Whenever you build a new feature, fix a bug, or make any code change that will be pushed to git, always ask the user if they want to run/test the feature before pushing. Follow this flow:
+
+1. Implement the change.
+2. Ask the user: "Want me to run this to test it before pushing?"
+3. If yes: run the feature or test command and show the results.
+4. If the results are not as expected: fix the issue, re-run, and repeat until it works.
+5. Only after the user confirms the results are correct (or the tests pass), proceed with committing and pushing.
+
+This applies to all workflows -- direct prompts, `/push`, and any other code change flow. The `/parliament`, `/auto-dev`, and `/speckit-auto-dev` commands have their own built-in testing phases and are exempt from this rule.
