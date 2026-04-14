@@ -89,8 +89,20 @@ This is the most important phase. Do NOT skip it.
    b. Log in using `ADMIN_USER` and `ADMIN_PASSWORD` from the `.env` file.
    c. Follow the same steps described in the failure report to reproduce the bug.
    d. Take a screenshot of the reproduced bug state using `playwright_browser_take_screenshot`.
-   e. If the bug reproduces: this is strong evidence. Save the screenshot for attachment in Phase 10.
-   f. If the bug does NOT reproduce: note this -- it may have been a transient issue or already fixed. Inform the user and ask whether to proceed.
+   e. If the bug reproduces: this is strong evidence. Save the screenshot for attachment in Phase 11.
+   f. If the bug does NOT reproduce: do NOT open the bug. Instead, STOP and present the user with:
+      > "The UI bug could not be reproduced via Playwright on the live cluster. This may indicate:
+      > - The issue was transient (timing, network, caching)
+      > - The issue has already been fixed in a recent deployment
+      > - The original failure was caused by the automation performer's interaction pattern rather than a product defect
+      >
+      > Suggestions:
+      > 1. Re-run the journey to see if the failure recurs
+      > 2. Try to reproduce manually in a browser to rule out automation artifacts
+      > 3. Check if the cluster/operator was recently updated since the failed run
+      > 4. If you still believe this is a real bug, describe what you observed and I can file it with a note that automated reproduction failed"
+      
+      Only proceed if the user explicitly asks to file it anyway.
 
 6. **For documentation/UI mismatch bugs -- Version-Matched Doc Verification**: If the failure report indicates a mismatch between the product UI and the documentation:
    a. Read `RHOAI_VERSION` from the `.env` file at `/home/dcohnlif/GIT/workflow-validation-director/.env`. This is the version that was being tested.
@@ -181,7 +193,7 @@ Search RHOAIENG using multiple JQL queries:
   > 3. Leave it — do not file anything"
 - Follow the user's choice.
 
-**If SIMILAR or CLOSED bugs are found**: Note their keys for linking in Phase 10:
+**If SIMILAR or CLOSED bugs are found**: Note their keys for linking in Phase 11:
 - CLOSED bugs with same symptoms → link as `Duplicate` (possible regression)
 - OPEN bugs with related symptoms → link as `Relates to`
 
@@ -282,7 +294,41 @@ If you cannot determine the root cause, omit this section entirely. Do NOT specu
 
 ---
 
-## Phase 10: Create the Bug and Link Related Issues
+## Phase 10: Human Approval Gate (MANDATORY)
+
+Before creating the bug, present ALL gathered information to the user for review. Output the following:
+
+```
+## Bug Ready for Filing — Please Review
+
+Summary:     <from Phase 7>
+Type:        <Bug or Documentation Bug>
+Component:   <from Phase 6>
+Priority:    Medium
+Project:     RHOAIENG
+
+--- Description Preview ---
+<full description from Phase 8, including Versions, Setup/Scenario, Steps to Reproduce, Expected Result, Actual Result>
+
+<Phase 9 RCA if applicable>
+--- End Preview ---
+
+Reproduction:  <Reproduced via Playwright / Not reproduced / N/A (non-UI bug)>
+Duplicates:    <None found / RHOAIENG-XXXXX (similar) / etc.>
+Attachments:   <list of files to attach>
+Linked Issues: <list of issues to link>
+```
+
+Then ask:
+> "Do you want me to file this bug? (yes/no)"
+
+- If the user says **yes**: proceed to Phase 11.
+- If the user says **no** or asks for changes: apply the requested changes and re-present, or stop entirely.
+- Do NOT create the Jira issue without explicit user confirmation.
+
+---
+
+## Phase 11: Create the Bug and Link Related Issues
 
 Execute these steps in order:
 
@@ -320,7 +366,7 @@ Execute these steps in order:
 
 ---
 
-## Phase 11: Report
+## Phase 12: Report
 
 Output a summary of what was done:
 
