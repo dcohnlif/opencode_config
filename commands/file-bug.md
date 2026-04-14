@@ -84,7 +84,27 @@ This is the most important phase. Do NOT skip it.
    - Verify the spec followed the documentation correctly
    - Verify the product UI differs from what the docs describe
 
-5. **DECISION GATE**:
+5. **For UI/functional bugs -- Playwright Reproduction**: If the bug involves UI behavior (dashboard pages, forms, buttons, navigation), attempt to reproduce it live using Playwright browser tools and the cluster credentials from the `.env` file:
+   a. Navigate to `TEST_DASHBOARD_URL` from the `.env` file.
+   b. Log in using `ADMIN_USER` and `ADMIN_PASSWORD` from the `.env` file.
+   c. Follow the same steps described in the failure report to reproduce the bug.
+   d. Take a screenshot of the reproduced bug state using `playwright_browser_take_screenshot`.
+   e. If the bug reproduces: this is strong evidence. Save the screenshot for attachment in Phase 10.
+   f. If the bug does NOT reproduce: note this -- it may have been a transient issue or already fixed. Inform the user and ask whether to proceed.
+
+6. **For documentation/UI mismatch bugs -- Version-Matched Doc Verification**: If the failure report indicates a mismatch between the product UI and the documentation:
+   a. Read `RHOAI_VERSION` from the `.env` file at `/home/dcohnlif/GIT/workflow-validation-director/.env`. This is the version that was being tested.
+   b. Use `rhoai-docs_list_doc_versions` to find available doc versions.
+   c. Use the doc version that matches the `RHOAI_VERSION` from the `.env` file (e.g., if `RHOAI_VERSION=2.19`, use version `2.19`). If an exact match is not available, use the closest lower version.
+   d. Use `rhoai-docs_search_documentation` with the matching version to find what the docs say about the feature.
+   e. Use `rhoai-docs_read_procedure` with the matching version to read the exact documented procedure.
+   f. Compare the documented behavior against the actual product UI (use Playwright to verify the live UI state if needed).
+   g. **Classification decision**:
+      - If the docs are wrong but the product is correct → file as **Documentation bug** with component **Documentation**.
+      - If the product is wrong but the docs are correct → file as a **product bug** with the appropriate component.
+      - If both are wrong → file two bugs (one Documentation, one product).
+
+7. **DECISION GATE**:
    - If the issue IS a product/documentation bug: proceed to Phase 3.
    - If the issue is NOT a bug (spec error, infrastructure issue, test environment problem, performer error): STOP and tell the user:
      > "This does not appear to be a product bug. It looks like [explanation]. The failure was caused by [reason]. Do you still want to file it?"
@@ -182,7 +202,7 @@ Map the failure area to the most relevant component:
 | Model serving (KServe, vLLM, runtime) | Model Serving |
 | Pipelines (DSP, pipeline runs) | AI Pipelines |
 | Model registry, AI hub | AI Hub |
-| Documentation errors | Documentation |
+| Documentation errors / UI-doc mismatch where docs are wrong | Documentation |
 | Hardware profiles, accelerators | AI Core Dashboard |
 | Distributed workloads, Ray, training | Distributed Workloads |
 
@@ -288,6 +308,7 @@ Execute these steps in order:
    - `log.md` from the artifacts directory
    - `actions.md` from the artifacts directory
    - Any `.png` screenshot files from the artifacts directory
+   - Any Playwright reproduction screenshots captured during Phase 2 verification
    - Do NOT attach `.webm` screen recordings (too large)
 
 4. **Link related issues** (from Phase 5):
