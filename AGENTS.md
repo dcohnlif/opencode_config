@@ -20,6 +20,19 @@ Specific expectations:
 - When uncertain, investigate and verify rather than making assumptions.
 - Use the most capable model/tool available for the task at hand, even if a cheaper alternative could "probably" work.
 
+## External Actions Require Explicit Permission
+
+NEVER perform actions on external systems (Jira, GitHub, GitLab, Slack, email, or any API that posts/modifies data under the user's identity) without explicit permission. This includes:
+
+- Creating, updating, or commenting on Jira issues
+- Creating pull/merge requests
+- Posting to any communication channel
+- Modifying any resource outside the local filesystem and git
+
+**Always ask first.** Present what you want to do and wait for confirmation. The only exceptions are:
+- Commands that explicitly instruct external actions (e.g., `/file-bug`, `/auto-dev` Phase 4 git push)
+- Read-only queries (searching Jira, fetching docs, reading GitHub code)
+
 ## Test Before Push
 
 Whenever you build a new feature, fix a bug, or make any code change that will be pushed to git, always ask the user if they want to run/test the feature before pushing. Follow this flow:
