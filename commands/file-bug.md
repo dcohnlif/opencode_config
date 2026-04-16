@@ -132,17 +132,44 @@ Run these commands and record the output:
 # OCP version
 oc get clusterversion -o jsonpath='{.items[0].status.desired.version}'
 
-# RHOAI version
+# RHOAI version (from CSV)
 oc get csv -n redhat-ods-operator -o jsonpath='{.items[0].spec.version}'
+
+# RHOAI release version (from DSCI status — may differ from CSV in pre-release)
+oc get dsci -A -o jsonpath='{.items[0].status.release.version}'
 
 # RHOAI operator status
 oc get dsci -A -o jsonpath='{.items[0].status.phase}'
 
 # Dashboard route
 oc get route -n redhat-ods-applications -l app=odh-dashboard -o jsonpath='{.items[0].spec.host}'
+
+# RHOAI operator build date (createdAt from CSV)
+oc get csv -n redhat-ods-operator rhods-operator.$(oc get csv -n redhat-ods-operator -o jsonpath='{.items[0].spec.version}') -o jsonpath='{.metadata.annotations.createdAt}' 2>/dev/null || echo "N/A"
+
+# DSC managed component versions (from DataScienceCluster status)
+oc get datasciencecluster -o json | python3 -c "
+import json, sys
+dsc = json.load(sys.stdin)['items'][0]['status']['components']
+for name, info in sorted(dsc.items()):
+    state = info.get('managementState', 'Unknown')
+    releases = info.get('releases', [])
+    if releases:
+        for r in releases:
+            print(f\"{name}: {r['name']} {r['version']} ({state})\"  )
+    else:
+        print(f\"{name}: ({state})\"  )
+"
+
+# Supporting operators installed alongside RHOAI
+oc get csv -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,VERSION:.spec.version,PHASE:.status.phase' --no-headers
 ```
 
-Record: OCP version, RHOAI version, DSCI status, Dashboard URL.
+Record all outputs. For the bug description, include:
+- **OCP version** and **RHOAI version**
+- **RHOAI build date** (from CSV `createdAt` annotation — useful for pre-release builds)
+- **Affected component version** — from the DSC component list, include the specific upstream version of the component related to the bug (e.g., if the bug is in KServe, include `KServe v0.14.0`)
+- **Supporting operator versions** — include only operators relevant to the bug area (e.g., Service Mesh version for serving bugs, Authorino for auth bugs)
 
 ---
 
@@ -246,8 +273,10 @@ Use this EXACT structure. Every section is mandatory:
 
 ```markdown
 ## Versions
-- **RHOAI**: <version from Phase 3>
+- **RHOAI**: <version from Phase 3> (build: <build date if available>)
 - **OCP**: <version from Phase 3>
+- **Affected component**: <upstream name and version from DSC status, e.g., "KServe v0.14.0" or "Kubeflow Pipelines 2.16.0">
+- **Supporting operators**: <only those relevant to the bug, e.g., "Service Mesh 3.3.1, Authorino 1.3.0">
 - **Dashboard URL**: <url>
 - **Cluster**: <cluster identifier from dashboard URL>
 
