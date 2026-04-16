@@ -161,13 +161,18 @@ for name, info in sorted(dsc.items()):
         print(f\"{name}: ({state})\"  )
 "
 
+# Dashboard version (from deployment image tag)
+oc get deployment odh-dashboard -n redhat-ods-applications -o jsonpath='{.spec.template.spec.containers[0].image}' | sed 's/.*://'
+
 # Supporting operators installed alongside RHOAI
 oc get csv -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,VERSION:.spec.version,PHASE:.status.phase' --no-headers
 ```
 
-Record all outputs. For the bug description, include:
-- **OCP version** and **RHOAI version**
+Record all outputs. The bug description MUST include ALL of the following:
+- **OCP version** (OpenShift Container Platform)
+- **RHOAI version** (Red Hat OpenShift AI operator version)
 - **RHOAI build date** (from CSV `createdAt` annotation — useful for pre-release builds)
+- **Dashboard version** (from the deployment image tag)
 - **Affected component version** — from the DSC component list, include the specific upstream version of the component related to the bug (e.g., if the bug is in KServe, include `KServe v0.14.0`)
 - **Supporting operator versions** — include only operators relevant to the bug area (e.g., Service Mesh version for serving bugs, Authorino for auth bugs)
 
@@ -273,8 +278,9 @@ Use this EXACT structure. Every section is mandatory:
 
 ```markdown
 ## Versions
+- **OCP**: <OpenShift version from Phase 3>
 - **RHOAI**: <version from Phase 3> (build: <build date if available>)
-- **OCP**: <version from Phase 3>
+- **Dashboard**: <dashboard image tag version from Phase 3>
 - **Affected component**: <upstream name and version from DSC status, e.g., "KServe v0.14.0" or "Kubeflow Pipelines 2.16.0">
 - **Supporting operators**: <only those relevant to the bug, e.g., "Service Mesh 3.3.1, Authorino 1.3.0">
 - **Dashboard URL**: <url>
