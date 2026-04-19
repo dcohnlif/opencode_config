@@ -60,6 +60,38 @@
         "JIRA_SSL_VERIFY": "true"
       },
       "enabled": true
+    },
+    "memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "enabled": true
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequentialthinking"],
+      "enabled": true
+    },
+    "kubernetes": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-kubernetes"],
+      "enabled": true
+    },
+    "github": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_GITHUB_TOKEN>"
+      },
+      "enabled": true
+    },
+    "google-workspace": {
+      "type": "local",
+      "command": ["uvx", "workspace-mcp", "--tool-tier", "core", "--read-only"],
+      "environment": {
+        "GOOGLE_OAUTH_CLIENT_ID": "<YOUR_GOOGLE_CLIENT_ID>",
+        "GOOGLE_OAUTH_CLIENT_SECRET": "<YOUR_GOOGLE_CLIENT_SECRET>"
+      },
+      "enabled": false
     }
   },
   "permission": {
