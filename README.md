@@ -78,3 +78,55 @@ cd ~/.config/opencode && git pull
 ```
 
 Note: `opencode.jsonc` is gitignored because it contains secrets. Changes to the main config must be manually mirrored via `opencode.jsonc.example`.
+
+## Available commands
+
+### Development workflows
+
+| Command | Description |
+|---|---|
+| `/parliament` | Full dev loop with human gates: plan -> auditor review -> implement -> dual code audit -> test -> push |
+| `/auto-dev` | Hands-free dev loop for trivial tasks (same quality gates, no human intervention) |
+| `/speckit-auto-dev` | Batch implementation of spec-kit tasks with per-task auto-dev cycles |
+| `/push` | Conventional commit and push to main |
+| `/review-plan` | Architecture review of implementation plans |
+| `/review-code` | Code review of uncommitted changes |
+
+### Jira integration
+
+| Command | Description |
+|---|---|
+| `/jira-story` | Create an AIPCC Story with auto-generated description, assigned to next sprint |
+| `/file-bug` | File a verified RHOAIENG bug with Playwright reproduction, version-matched doc verification, duplicate detection, and impact analysis |
+
+### BMAD agents (persona-driven)
+
+These agents are from the [BMAD Method](https://github.com/bmadcode/BMAD-METHOD) project (MIT License, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). Not affiliated with or endorsed by BMad Code, LLC.
+
+| Command | Agent | Role |
+|---|---|---|
+| `/bmad-analyst` | Noa | Business Analyst: market research, competitive analysis, requirements |
+| `/bmad-pm` | Omer | Product Manager: PRD creation, epics & stories, implementation readiness |
+| `/bmad-architect` | Itai | System Architect: technical design, cloud infrastructure |
+| `/bmad-ux` | Shira | UX Designer: interaction design, experience strategy |
+| `/bmad-writer` | Yael | Tech Writer: documentation, diagrams, doc validation |
+| `/bmad-init` | -- | Initialize BMAD project configuration |
+
+### Spec Kit (requirements)
+
+| Command | Description |
+|---|---|
+| `/speckit.specify` | Define what to build |
+| `/speckit.plan` | Create technical plan |
+| `/speckit.tasks` | Generate task list |
+| `/speckit.implement` | Execute tasks |
+
+## Google Workspace setup
+
+To set up Google Workspace integration (Gmail, Drive, Calendar, Docs, Sheets):
+
+```bash
+bash ~/.config/opencode/scripts/setup-google-workspace.sh
+```
+
+This interactive script handles prerequisites, OAuth credentials, and config for both OpenCode and Claude Code.
