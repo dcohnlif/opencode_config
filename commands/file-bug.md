@@ -61,6 +61,35 @@ containing `results.txt`, `report.md`, `log.md`, `actions.md`, and optionally sc
 
 ---
 
+## Phase 1.5: Check Bug History (Prevent Duplicates)
+
+Before proceeding with full analysis, check whether this failure has been seen before.
+
+1. **Read history file**: Read `.file-bug/history.json` from the workspace root (typically `/home/dcohnlif/GIT/workflow-validation-director/.file-bug/history.json`). If the file doesn't exist, skip this phase and proceed to Phase 2.
+
+2. **Extract failure signature**: From the artifacts read in Phase 1, build a failure signature:
+   - Journey/workflow name
+   - Failed task name(s)
+   - Error message or key failure text (first 200 chars)
+
+3. **Match against history**: Compare the failure signature against all entries in `history.json`. A match is when the same journey + same task + similar error text (fuzzy match, >80% overlap) has been filed before.
+
+4. **If a match is found**:
+   - Show the user the previous bug:
+     > "This failure matches a previously filed bug:
+     > RHOAIENG-XXXXX: [summary] (Status: [status], Filed: [date])
+     > Journey: [journey], Task: [task]
+     >
+     > Options:
+     > 1. Add a comment to the existing bug noting this recurrence
+     > 2. File a new bug anyway (e.g., if the fix was supposed to resolve this)
+     > 3. Skip — do not file anything"
+   - Follow the user's choice. If option 1, use `atlassian_jira_add_comment` to add a comment to the existing bug noting the date and run, then skip to Phase 12.
+
+5. **If no match**: Proceed to Phase 2.
+
+---
+
 ## Phase 2: Verify This Is a Real Product/Documentation Bug (HARD GATE)
 
 This is the most important phase. Do NOT skip it.
@@ -89,8 +118,9 @@ This is the most important phase. Do NOT skip it.
    b. Log in using `ADMIN_USER` and `ADMIN_PASSWORD` from the `.env` file.
    c. Follow the same steps described in the failure report to reproduce the bug.
    d. Take a screenshot of the reproduced bug state using `playwright_browser_take_screenshot`.
-   e. If the bug reproduces: this is strong evidence. Save the screenshot for attachment in Phase 11.
-   f. If the bug does NOT reproduce: do NOT open the bug. Instead, STOP and present the user with:
+   e. Capture a DOM snapshot of the failure state using `playwright_browser_snapshot` (save to file) and `playwright_browser_evaluate` with `() => document.documentElement.outerHTML` (save the raw HTML to `.file-bug/dom_snapshot.html` in the workspace root). This gives developers the exact DOM state at the time of failure.
+   f. If the bug reproduces: this is strong evidence. Save the screenshot and DOM snapshot for attachment in Phase 11.
+   g. If the bug does NOT reproduce: do NOT open the bug. Instead, STOP and present the user with:
       > "The UI bug could not be reproduced via Playwright on the live cluster. This may indicate:
       > - The issue was transient (timing, network, caching)
       > - The issue has already been fixed in a recent deployment
@@ -197,6 +227,28 @@ Based on the affected component, gather logs:
 3. Redact any email addresses that are not Red Hat internal
 4. If an entire log section appears to contain sensitive configuration, exclude it entirely
 5. When in doubt, do NOT include the log content
+
+---
+
+## Phase 4.5: Impact Analysis
+
+Assess the scope of the bug beyond the specific failure that was observed. This helps developers understand the blast radius and prioritize the fix.
+
+1. **Identify the affected component/feature**: From the root cause identified in Phase 2, determine the specific UI component, API endpoint, operator controller, or configuration path that is broken.
+
+2. **Trace impact**: Use the `Task` tool to launch an `explore` subagent with the following prompt:
+   - Search the workflow-validation-director journeys (at `/home/dcohnlif/GIT/workflow-insights/data/journeys/`) for other workflows that interact with the same component/feature.
+   - Search the RHOAI documentation (using `rhoai-docs_search_documentation`) for other documented procedures that reference the same feature.
+   - Return: a list of other journeys/features that might be affected by the same bug, and why.
+
+3. **Include in bug description**: Add the impact analysis results to the "Additional Information" section of the bug description (Phase 8). Format as:
+   ```
+   ## Impact Analysis
+   The following areas may also be affected by this defect:
+   - [Journey/feature name]: [why it's affected]
+   - ...
+   ```
+   If no other areas are affected (the bug is isolated to a single workflow), note that explicitly: "Impact appears limited to the [specific feature] workflow."
 
 ---
 
@@ -390,6 +442,7 @@ Execute these steps in order:
    - `actions.md` from the artifacts directory
    - Any `.png` screenshot files from the artifacts directory
    - Any Playwright reproduction screenshots captured during Phase 2 verification
+   - The DOM snapshot file (`.file-bug/dom_snapshot.html`) if captured during Phase 2 Playwright reproduction
    - Do NOT attach `.webm` screen recordings (too large)
 
 4. **Link related issues** (from Phase 5):
@@ -423,3 +476,25 @@ Linked Issues:
 ```
 
 If no bug was filed (user chose to skip, or it wasn't a real bug), explain why.
+
+### Record to Bug History
+
+After filing (or commenting on an existing bug), update the history file at `.file-bug/history.json` in the workspace root (typically `/home/dcohnlif/GIT/workflow-validation-director/.file-bug/history.json`). Create the file and directory if they don't exist.
+
+Append an entry with this structure:
+```json
+{
+  "bug_key": "RHOAIENG-XXXXX",
+  "summary": "<bug summary>",
+  "journey": "<journey/workflow name>",
+  "failed_tasks": ["<task1>", "<task2>"],
+  "error_signature": "<first 200 chars of the key error message>",
+  "component": "<RHOAIENG component>",
+  "filed_date": "<ISO 8601 date>",
+  "artifacts_path": "<path to the artifacts directory>",
+  "reproduction": "<reproduced_playwright | not_reproduced | not_applicable>",
+  "impact": ["<other affected journey/feature 1>", "..."]
+}
+```
+
+This history enables Phase 1.5 to catch recurring failures and prevent duplicate bug filings.
