@@ -2,20 +2,18 @@
 
 Personal configuration for [OpenCode](https://opencode.ai), an open-source AI coding agent for the terminal.
 
-This repo contains agent rules, custom slash commands, MCP server definitions, and permission settings. Clone it to set up OpenCode on a new machine with the same workflow.
+This repo contains agent rules, custom slash commands, MCP server integrations, BMAD persona agents, spec-kit workflows, and permission settings. Clone it to set up OpenCode on a new machine with the same workflow. All commands are also mirrored for [Claude Code](https://docs.anthropic.com/en/docs/claude-code/) compatibility.
 
 ## What's included
 
 | File / Directory | Purpose |
 |---|---|
-| `AGENTS.md` | Global agent rules: model requirements (Claude Opus 4.6, adaptive thinking), correctness-over-cost policy |
+| `AGENTS.md` | Global agent rules: model requirements, correctness-over-cost policy, test-before-push, external action permissions |
 | `opencode.jsonc.example` | Main config template (providers, agents, MCP servers, permissions) with secrets redacted |
-| `.claude/settings.local.json` | Claude permission settings |
-| `commands/auto-dev.md` | Automated dev loop: plan -> review -> implement -> code review -> commit & push |
-| `commands/push.md` | Commit and push workflow with conventional commit messages |
-| `commands/review-plan.md` | Architecture review of implementation plans via auditor subagent |
-| `commands/review-code.md` | Pragmatic code review of uncommitted changes via auditor subagent |
-| `commands/review-artifacts.md` | RHOAI QE artifact review workflow |
+| `.claude/` | Claude Code settings and mirrored command definitions |
+| `commands/` | All OpenCode custom slash commands |
+| `_bmad/` | BMAD Method agent skill tree (MIT Licensed, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)) |
+| `scripts/` | Setup scripts (e.g., Google Workspace MCP) |
 
 ## Setup on a new machine
 
@@ -47,11 +45,10 @@ Edit `opencode.jsonc` and fill in your secrets:
 
 - `JIRA_USERNAME` -- your Jira email
 - `JIRA_API_TOKEN` -- your Jira API token ([generate one here](https://id.atlassian.com/manage-profile/security/api-tokens))
+- `GITHUB_PERSONAL_ACCESS_TOKEN` -- your GitHub token (`gh auth token`)
 - Update the `google-vertex-anthropic` project/location if your GCP setup differs
 
 ### 4. Install dependencies
-
-The config uses an OpenCode plugin that needs to be installed:
 
 ```bash
 cd ~/.config/opencode
@@ -60,7 +57,125 @@ npm install
 
 ### 5. Verify
 
-Run `opencode` in any project directory. Your custom commands should be available via `/auto-dev`, `/push`, `/review-plan`, `/review-code`, and `/review-artifacts`.
+Run `opencode` in any project directory. Type `/` to see all available commands.
+
+---
+
+## Commands
+
+### Development workflows
+
+| Command | Description |
+|---|---|
+| `/parliament` | Full dev loop with human gates: codebase recon -> plan -> dual auditor review -> implement -> dual code audit -> test -> push. 5 phases, 3 human gates. |
+| `/auto-dev` | Hands-free dev loop for trivial tasks. Same quality gates as `/parliament` (auditor reviews plan + code) but no human intervention. Classifies task complexity to skip plan audit for trivial changes. |
+| `/speckit-auto-dev` | Batch implementation of spec-kit tasks. Runs a full auto-dev cycle per task (plan, implement, review, test, commit), then final integration test before push. |
+| `/push` | Conventional commit message generation and push to main |
+| `/review-plan` | Architecture review of implementation plans via auditor subagent |
+| `/review-code` | Pragmatic code review of uncommitted changes via auditor subagent |
+| `/review-artifacts` | RHOAI QE artifact review workflow |
+| `/explain` | Code explainer: takes a file/function/module, maps dependencies (callers, callees, imports), generates a Mermaid diagram, and produces a structured explanation with line references |
+
+### Jira integration
+
+| Command | Description |
+|---|---|
+| `/jira-story` | Create an AIPCC Story with auto-generated description, assigned to next sprint on board 3723 |
+| `/file-bug` | File a verified RHOAIENG bug. Includes: Playwright UI reproduction, DOM snapshot capture, version-matched RHOAI doc verification, duplicate/history detection, impact analysis, and human approval gate. 12 phases. |
+
+### BMAD agents (persona-driven)
+
+These agents are from the [BMAD Method](https://github.com/bmadcode/BMAD-METHOD) project (MIT License, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). Not affiliated with or endorsed by BMad Code, LLC.
+
+| Command | Agent | Role |
+|---|---|---|
+| `/bmad-analyst` | Noa | Business Analyst: brainstorming, market research, competitive analysis, requirements elicitation |
+| `/bmad-pm` | Omer | Product Manager: PRD creation/validation, epics & stories, implementation readiness |
+| `/bmad-architect` | Itai | System Architect: technical design, distributed systems, cloud infrastructure, architecture decisions |
+| `/bmad-ux` | Shira | UX Designer: interaction design, experience strategy, user research |
+| `/bmad-writer` | Yael | Tech Writer: documentation, Mermaid diagrams, concept explanations, doc validation |
+| `/bmad-init` | -- | Initialize BMAD project configuration |
+
+### Spec Kit (requirements-driven development)
+
+From [GitHub Spec Kit](https://github.com/github/spec-kit). Run `specify init . --ai opencode` per project for templates.
+
+| Command | Description |
+|---|---|
+| `/speckit.constitution` | Define project principles and guidelines |
+| `/speckit.specify` | Define what to build (requirements and user stories) |
+| `/speckit.clarify` | Clarify ambiguities in the spec |
+| `/speckit.plan` | Create technical implementation plan |
+| `/speckit.analyze` | Cross-artifact consistency check |
+| `/speckit.tasks` | Generate actionable task list |
+| `/speckit.implement` | Execute all tasks |
+
+---
+
+## MCP Servers
+
+| Server | Package | Purpose | Requires setup? |
+|---|---|---|---|
+| **RHOAI Docs** | local (`rhoai-documentation-hub`) | Search, read, and verify Red Hat OpenShift AI documentation by version | Requires local clone of rhoai-documentation-hub |
+| **Playwright** | `@playwright/mcp` | Browser automation: UI testing, screenshots, DOM inspection, form filling | No |
+| **Jira (Atlassian)** | `mcp-atlassian` | Create/search/update Jira issues, sprints, boards, worklogs | Jira API token |
+| **Memory** | `@modelcontextprotocol/server-memory` | Persistent knowledge graph across sessions: stores project patterns, decisions, relationships | No |
+| **Sequential Thinking** | `@modelcontextprotocol/server-sequentialthinking` | Structured multi-step reasoning for complex analysis and planning | No |
+| **Kubernetes** | `mcp-server-kubernetes` | Cluster inspection: pods, deployments, logs, events, operator status via kubectl/oc | `kubeconfig` configured |
+| **GitHub** | `@modelcontextprotocol/server-github` | PR reviews, issue management, code search, repository operations | GitHub token |
+| **Google Workspace** | `workspace-mcp` | Gmail, Drive, Calendar, Docs, Sheets, Slides (disabled by default) | Google OAuth credentials |
+
+---
+
+## Additional Setup
+
+### Google Workspace
+
+Interactive setup script for Fedora and macOS:
+
+```bash
+bash ~/.config/opencode/scripts/setup-google-workspace.sh
+```
+
+Handles prerequisites, Google Cloud OAuth credentials, access level (read-only vs full), and configures both OpenCode and Claude Code.
+
+### GitHub MCP
+
+Uses your `gh` CLI token by default. To update:
+
+```bash
+gh auth token  # copy the output into opencode.jsonc GITHUB_PERSONAL_ACCESS_TOKEN
+```
+
+### Kubernetes MCP
+
+Requires a working `kubeconfig`. If you use OpenShift:
+
+```bash
+oc login <cluster-url> -u <user> -p <password>
+```
+
+---
+
+## Claude Code Compatibility
+
+All commands are mirrored in `~/.claude/commands/` for Claude Code. The following are available in both OpenCode and Claude Code:
+
+`/parliament`, `/auto-dev`, `/speckit-auto-dev`, `/file-bug`, `/jira-story`, `/push`, `/review-code`, `/review-plan`
+
+---
+
+## Global Agent Rules (`AGENTS.md`)
+
+The following rules apply to every OpenCode session:
+
+- **Model**: Claude Opus 4.6 with adaptive thinking (highest reasoning mode)
+- **Correctness over cost**: never take shortcuts; prefer thorough approaches
+- **Test before push**: always ask user to test/run changes before committing
+- **External actions require permission**: never create Jira issues, PRs, or post to external systems without asking first
+- **Workflow reliability**: phase transitions use XML boundaries, self-verification checkpoints, state tracking files, and explanatory context (not aggressive emphasis)
+
+---
 
 ## Keeping configs in sync
 
@@ -79,54 +194,8 @@ cd ~/.config/opencode && git pull
 
 Note: `opencode.jsonc` is gitignored because it contains secrets. Changes to the main config must be manually mirrored via `opencode.jsonc.example`.
 
-## Available commands
+---
 
-### Development workflows
+## Third-Party Notices
 
-| Command | Description |
-|---|---|
-| `/parliament` | Full dev loop with human gates: plan -> auditor review -> implement -> dual code audit -> test -> push |
-| `/auto-dev` | Hands-free dev loop for trivial tasks (same quality gates, no human intervention) |
-| `/speckit-auto-dev` | Batch implementation of spec-kit tasks with per-task auto-dev cycles |
-| `/push` | Conventional commit and push to main |
-| `/review-plan` | Architecture review of implementation plans |
-| `/review-code` | Code review of uncommitted changes |
-
-### Jira integration
-
-| Command | Description |
-|---|---|
-| `/jira-story` | Create an AIPCC Story with auto-generated description, assigned to next sprint |
-| `/file-bug` | File a verified RHOAIENG bug with Playwright reproduction, version-matched doc verification, duplicate detection, and impact analysis |
-
-### BMAD agents (persona-driven)
-
-These agents are from the [BMAD Method](https://github.com/bmadcode/BMAD-METHOD) project (MIT License, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). Not affiliated with or endorsed by BMad Code, LLC.
-
-| Command | Agent | Role |
-|---|---|---|
-| `/bmad-analyst` | Noa | Business Analyst: market research, competitive analysis, requirements |
-| `/bmad-pm` | Omer | Product Manager: PRD creation, epics & stories, implementation readiness |
-| `/bmad-architect` | Itai | System Architect: technical design, cloud infrastructure |
-| `/bmad-ux` | Shira | UX Designer: interaction design, experience strategy |
-| `/bmad-writer` | Yael | Tech Writer: documentation, diagrams, doc validation |
-| `/bmad-init` | -- | Initialize BMAD project configuration |
-
-### Spec Kit (requirements)
-
-| Command | Description |
-|---|---|
-| `/speckit.specify` | Define what to build |
-| `/speckit.plan` | Create technical plan |
-| `/speckit.tasks` | Generate task list |
-| `/speckit.implement` | Execute tasks |
-
-## Google Workspace setup
-
-To set up Google Workspace integration (Gmail, Drive, Calendar, Docs, Sheets):
-
-```bash
-bash ~/.config/opencode/scripts/setup-google-workspace.sh
-```
-
-This interactive script handles prerequisites, OAuth credentials, and config for both OpenCode and Claude Code.
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for licensing and attribution for BMAD Method and Spec Kit.
