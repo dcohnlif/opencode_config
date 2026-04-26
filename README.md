@@ -174,6 +174,7 @@ The following rules apply to every OpenCode session:
 - **Test before push**: always ask user to test/run changes before committing
 - **External actions require permission**: never create Jira issues, PRs, or post to external systems without asking first
 - **Workflow reliability**: phase transitions use XML boundaries, self-verification checkpoints, state tracking files, and explanatory context (not aggressive emphasis)
+- **General learnings**: accumulated cross-project knowledge covering AI-driven test spec generation, autonomous test execution, QE artifact review, MCP tool reliability, and infrastructure/environment pitfalls
 
 ---
 
