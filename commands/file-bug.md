@@ -289,20 +289,22 @@ Fetch the component list using `atlassian_jira_get_project_components` for proje
 
 Map the failure area to the most relevant component:
 
-| Failure area | Component |
-|-------------|-----------|
-| Dashboard UI (Settings, Projects, Workbenches pages) | AI Core Dashboard |
-| Platform operator, DSC, DSCI | AI Core Platform |
-| Platform security, RBAC, auth | AI Core Platform Security |
-| Notebooks, workbenches, JupyterLab | Notebooks Server |
-| Model serving (KServe, vLLM, runtime) | Model Serving |
-| Pipelines (DSP, pipeline runs) | AI Pipelines |
-| Model registry, AI hub | AI Hub |
-| Documentation errors / UI-doc mismatch where docs are wrong | Documentation |
-| Hardware profiles, accelerators | AI Core Dashboard |
-| Distributed workloads, Ray, training | Distributed Workloads |
+| Failure area | Component | Source Repository |
+|-------------|-----------|-------------------|
+| Dashboard UI (Settings, Projects, Workbenches pages) | AI Core Dashboard | https://github.com/opendatahub-io/odh-dashboard |
+| Platform operator, DSC, DSCI | AI Core Platform | https://github.com/opendatahub-io/opendatahub-operator |
+| Platform security, RBAC, auth | AI Core Platform Security | https://github.com/opendatahub-io/opendatahub-operator |
+| Notebooks, workbenches, JupyterLab | Notebooks Server | https://github.com/opendatahub-io/notebooks |
+| Model serving (KServe, vLLM, runtime) | Model Serving | https://github.com/opendatahub-io/kserve |
+| Pipelines (DSP, pipeline runs) | AI Pipelines | https://github.com/opendatahub-io/data-science-pipelines |
+| Model registry, AI hub | AI Hub | https://github.com/opendatahub-io/model-registry |
+| Documentation errors / UI-doc mismatch where docs are wrong | Documentation | https://github.com/opendatahub-io/opendatahub-documentation |
+| Hardware profiles, accelerators | AI Core Dashboard | https://github.com/opendatahub-io/odh-dashboard |
+| Distributed workloads, Ray, training | Distributed Workloads | https://github.com/opendatahub-io/distributed-workloads |
 
 If uncertain which component is correct, ask the user.
+
+**Record the source repository URL** from the table above -- it will be included in the bug description (Phase 8) to enable automated triage and autofix pipelines.
 
 ---
 
@@ -357,6 +359,9 @@ Example: "Per the RHOAI 3.4 documentation (Creating a workbench, step 9), the PV
 <What actually happened. Be specific.
 Include error messages, unexpected values, UI behavior.
 Example: "After saving PVC size to 5 GiB and receiving a 'Cluster settings changes saved' success notification, reloading the page shows the PVC size field reverted to 20 GiB.">
+
+## Source Repository
+<repository URL from Phase 6 table, e.g., https://github.com/opendatahub-io/odh-dashboard>
 
 ## Additional Information
 <Any extra context: sanitized logs, workarounds, related observations.
