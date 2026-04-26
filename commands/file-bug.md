@@ -156,7 +156,62 @@ This is the most important phase. Do NOT skip it.
 
 ## Phase 3: Gather Cluster Versions
 
-Run these commands and record the output:
+Use a three-tier strategy to gather version and build information. Try each tier in order; stop as soon as one succeeds.
+
+### Tier 1: Use an existing Image Tracer report
+
+The `rhoai-image-tracer.sh` setup script produces a comprehensive Markdown report with operator/component build dates, image SHAs, catalog channels, and DSC state. If a test run included this script, the report is already in the artifacts.
+
+1. Derive the cluster API URL from `TEST_DASHBOARD_URL` in the `.env` file (replace the dashboard hostname prefix with `api.` and append `:6443`).
+
+2. Search for existing tracer reports:
+   - From the artifacts directory provided in $ARGUMENTS, navigate to its **sibling** `wfv-resources/` directory. The layout is:
+     ```
+     artifacts/
+     ├── wfv-resources/rhoai-image-trace-*.md   <-- look here
+     ├── <timestamp>/<workflow>/                 <-- $ARGUMENTS points inside here
+     ```
+     So from `<artifacts>/<timestamp>/<workflow>/`, look at `<artifacts>/wfv-resources/rhoai-image-trace-*.md`.
+   - If multiple tracer reports exist, use the most recent one (highest timestamp in filename).
+
+3. **Validate cluster match**: Read the tracer report header. It contains a `**Cluster:**` line with the API URL. Verify this matches the cluster API URL derived in step 1. If it does NOT match, discard this report and proceed to Tier 2.
+
+4. **If a matching report is found**: Parse it to extract:
+   - RHOAI version and CSV name (from Section 3)
+   - Operator build date and git SHA (from Section 5)
+   - CatalogSource image and channel (from Sections 1-2)
+   - DSC component management states (from Section 4)
+   - Per-component build dates (from Section 6 "Managed Component Build Dates" table)
+   - Dashboard build date (look for `odh-dashboard-rhel9` in the component build dates table)
+   - All 100+ related component image SHAs (from Section 6)
+
+   Also run these supplementary commands that the tracer does NOT cover:
+   ```bash
+   # OCP version (not in tracer report)
+   oc get clusterversion -o jsonpath='{.items[0].status.desired.version}'
+
+   # Supporting operators installed alongside RHOAI (not in tracer report)
+   oc get csv -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,VERSION:.spec.version,PHASE:.status.phase' --no-headers
+   ```
+
+   Record the tracer report path for attachment in Phase 11. Skip to Phase 4.
+
+### Tier 2: Run the Image Tracer on-the-fly
+
+If no matching tracer report was found in the artifacts, run the script directly. Phase 2 has already logged into the cluster via `oc login`, so authentication is in place.
+
+1. Run the tracer script (takes ~2 minutes):
+   ```bash
+   bash /home/dcohnlif/GIT/rhoai-customer-workflows/scripts/cluster-management/rhoai-image-tracer.sh /tmp/rhoai-image-trace-filebug.md
+   ```
+
+2. If the script succeeds (exit code 0): parse the generated report at `/tmp/rhoai-image-trace-filebug.md` using the same extraction steps as Tier 1 step 4. Record this path for attachment in Phase 11.
+
+3. If the script fails (missing dependencies like `jq`/`skopeo`, or any other error): log the error and fall through to Tier 3.
+
+### Tier 3: Fallback — manual `oc` commands
+
+If both Tier 1 and Tier 2 failed, gather versions using individual `oc` commands:
 
 ```bash
 # OCP version
@@ -198,13 +253,21 @@ oc get deployment odh-dashboard -n redhat-ods-applications -o jsonpath='{.spec.t
 oc get csv -n redhat-ods-operator -o custom-columns='NAME:.metadata.name,VERSION:.spec.version,PHASE:.status.phase' --no-headers
 ```
 
-Record all outputs. The bug description MUST include ALL of the following:
+### Required version fields
+
+Regardless of which tier was used, the bug description MUST include ALL of the following:
 - **OCP version** (OpenShift Container Platform)
 - **RHOAI version** (Red Hat OpenShift AI operator version)
-- **RHOAI build date** (from CSV `createdAt` annotation — useful for pre-release builds)
-- **Dashboard version** (from the deployment image tag)
+- **RHOAI build date** (from CSV `createdAt` annotation or tracer Section 5 — useful for pre-release builds)
+- **Dashboard version** (from the deployment image tag or tracer component build dates)
 - **Affected component version** — from the DSC component list, include the specific upstream version of the component related to the bug (e.g., if the bug is in KServe, include `KServe v0.14.0`)
 - **Supporting operator versions** — include only operators relevant to the bug area (e.g., Service Mesh version for serving bugs, Authorino for auth bugs)
+
+When Tier 1 or 2 was used, the description SHOULD also include (in the Versions section):
+- **Operator git SHA** (from tracer Section 5, `VCS Ref` field)
+- **Affected component build date** (from tracer Section 6, e.g., `odh-dashboard-rhel9: 2026-04-16T01:11:58Z`)
+- **Affected component image SHA** (from tracer Section 6 related images list)
+- **Catalog channel** (from tracer Section 2, the channel the cluster is subscribed to)
 
 ---
 
@@ -333,10 +396,11 @@ Use this EXACT structure. Every section is mandatory:
 ```markdown
 ## Versions
 - **OCP**: <OpenShift version from Phase 3>
-- **RHOAI**: <version from Phase 3> (build: <build date if available>)
-- **Dashboard**: <dashboard image tag version from Phase 3>
-- **Affected component**: <upstream name and version from DSC status, e.g., "KServe v0.14.0" or "Kubeflow Pipelines 2.16.0">
+- **RHOAI**: <version from Phase 3> (build: <build date if available>, git: <operator git SHA if from tracer>)
+- **Dashboard**: <dashboard image tag version from Phase 3> (build: <dashboard build date if from tracer>)
+- **Affected component**: <upstream name and version from DSC status, e.g., "KServe v0.14.0" or "Kubeflow Pipelines 2.16.0"> (build: <component build date if from tracer>, image: <component image SHA if from tracer>)
 - **Supporting operators**: <only those relevant to the bug, e.g., "Service Mesh 3.3.1, Authorino 1.3.0">
+- **Catalog channel**: <channel name from tracer Section 2, e.g., "stable-3.4", if available>
 - **Dashboard URL**: <url>
 - **Cluster**: <cluster identifier from dashboard URL>
 
@@ -442,13 +506,14 @@ Execute these steps in order:
    Before attaching each file, verify it contains NO secrets (passwords, tokens, keys, credentials, certificates, connection strings). Redact if needed.
 
    Use `atlassian_jira_update_issue` with `attachments` to attach:
-   - `report.md` from the artifacts directory
-   - `log.md` from the artifacts directory
-   - `actions.md` from the artifacts directory
-   - Any `.png` screenshot files from the artifacts directory
-   - Any Playwright reproduction screenshots captured during Phase 2 verification
-   - The DOM snapshot file (`.file-bug/dom_snapshot.html`) if captured during Phase 2 Playwright reproduction
-   - Do NOT attach `.webm` screen recordings (too large)
+    - `report.md` from the artifacts directory
+    - `log.md` from the artifacts directory
+    - `actions.md` from the artifacts directory
+    - The Image Tracer report (`rhoai-image-trace-*.md`) if one was used or generated in Phase 3 (from the artifacts `wfv-resources/` directory or `/tmp/rhoai-image-trace-filebug.md`)
+    - Any `.png` screenshot files from the artifacts directory
+    - Any Playwright reproduction screenshots captured during Phase 2 verification
+    - The DOM snapshot file (`.file-bug/dom_snapshot.html`) if captured during Phase 2 Playwright reproduction
+    - Do NOT attach `.webm` screen recordings (too large)
 
 4. **Link related issues** (from Phase 5):
    For each SIMILAR open bug:
