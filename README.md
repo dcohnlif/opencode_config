@@ -87,14 +87,15 @@ Run `opencode` in any project directory. Type `/` to see all available commands.
 
 These agents are from the [BMAD Method](https://github.com/bmadcode/BMAD-METHOD) project (MIT License, see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)). Not affiliated with or endorsed by BMad Code, LLC.
 
-| Command | Agent | Role |
-|---|---|---|
-| `/bmad-analyst` | Noa | Business Analyst: brainstorming, market research, competitive analysis, requirements elicitation |
-| `/bmad-pm` | Omer | Product Manager: PRD creation/validation, epics & stories, implementation readiness |
-| `/bmad-architect` | Itai | System Architect: technical design, distributed systems, cloud infrastructure, architecture decisions |
-| `/bmad-ux` | Shira | UX Designer: interaction design, experience strategy, user research |
-| `/bmad-writer` | Yael | Tech Writer: documentation, Mermaid diagrams, concept explanations, doc validation |
-| `/bmad-init` | -- | Initialize BMAD project configuration |
+| Command | Role |
+|---|---|
+| `/bmad-analyst` | Business Analyst (Mary): brainstorming, market research, competitive analysis, requirements elicitation |
+| `/bmad-pm` | Product Manager (John): PRD creation/validation, epics & stories, implementation readiness |
+| `/bmad-architect` | System Architect (Winston): technical design, distributed systems, cloud infrastructure, architecture decisions |
+| `/bmad-ux` | UX Designer (Sally): interaction design, experience strategy, user research |
+| `/bmad-writer` | Tech Writer (Paige): documentation, Mermaid diagrams, concept explanations, doc validation |
+| `/bmad-validate-prd` | Validate a PRD against BMAD standards through comprehensive review |
+| `/bmad-init` | Initialize BMAD project configuration |
 
 ### Spec Kit (requirements-driven development)
 
