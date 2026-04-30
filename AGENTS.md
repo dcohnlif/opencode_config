@@ -17,6 +17,11 @@ I do not care about token cost, execution time, or convenience shortcuts. Always
 - When multiple implementation paths exist, choose the most robust one, not the easiest or cheapest.
 - Read all relevant files fully rather than skimming. Search thoroughly rather than guessing.
 - When uncertain, investigate and verify rather than making assumptions.
+- When making LLM API calls for one-time tasks (classification, analysis, generation), always use the most capable model available. Do not use cheaper/faster models to save tokens -- quality of output matters more than cost.
+
+## Parallelize Independent Work
+
+When launching multiple subagents or tasks that don't depend on each other, run them in parallel (multiple Task calls in a single message). Sequential execution wastes time when tasks are independent. For example: reading multiple files, running explore + reading AGENTS.md, or launching dual auditors.
 
 ## When in Doubt, Ask
 
@@ -75,6 +80,14 @@ If the current project has its own `AGENTS.md` (or `CLAUDE.md`), its rules take 
 | `/explain` | Explain a file/function/module with dependency diagram |
 
 When the user asks to build something and doesn't specify a workflow, suggest the appropriate command based on task complexity.
+
+## Scope Investigations
+
+When exploring a codebase to gather context or answer a question, scope the search narrowly or delegate to a subagent. Unscoped exploration (reading dozens of files) fills the context window with irrelevant content and degrades performance. If the investigation requires reading more than 5-10 files, use a subagent so the research runs in an isolated context and returns a summary.
+
+## Don't Over-Engineer
+
+Only make changes that are directly requested or clearly necessary. Don't add features, refactor surrounding code, introduce abstractions, or build in flexibility that wasn't asked for. A bug fix doesn't need the surrounding code cleaned up. A simple feature doesn't need extra configurability. The right amount of complexity is the minimum needed for the current task.
 
 ## General Learnings
 
