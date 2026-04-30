@@ -20,6 +20,10 @@ Specific expectations:
 - When uncertain, investigate and verify rather than making assumptions.
 - Use the most capable model/tool available for the task at hand, even if a cheaper alternative could "probably" work.
 
+## Google Workspace Access
+
+When the user asks to access, read, or interact with Google Docs, Google Sheets, Google Drive, Gmail, or Google Calendar, NEVER use WebFetch. WebFetch cannot access Google Workspace content (it returns login pages or errors). Instead, always use the Google Workspace MCP tools (prefixed with `google-workspace` or `mcp__google-workspace__`). These tools authenticate via OAuth and provide direct access to the user's Google Workspace content.
+
 ## External Actions Require Explicit Permission
 
 NEVER perform actions on external systems (Jira, GitHub, GitLab, Slack, email, or any API that posts/modifies data under the user's identity) without explicit permission. This includes:
