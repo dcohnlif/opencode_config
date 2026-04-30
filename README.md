@@ -170,12 +170,17 @@ All commands are mirrored in `~/.claude/commands/` for Claude Code. The followin
 
 The following rules apply to every OpenCode session:
 
-- **Model**: Claude Opus 4.6 with adaptive thinking (highest reasoning mode)
+- **Identity**: user is David, English, Jira: dcohnlif@redhat.com, team project AIPCC, bug project RHOAIENG
 - **Correctness over cost**: never take shortcuts; prefer thorough approaches
+- **When in doubt, ask**: clarify intent before guessing
+- **Google Workspace**: always use MCP tools, never WebFetch; inform user if MCP unavailable
+- **External actions require permission**: never modify Jira/GitHub/Slack without asking first
+- **Secrets protection**: never read `.bashrc`, `.env`, `.ssh/`, or shell config files unless asked
 - **Test before push**: always ask user to test/run changes before committing
-- **External actions require permission**: never create Jira issues, PRs, or post to external systems without asking first
-- **Workflow reliability**: phase transitions use XML boundaries, self-verification checkpoints, state tracking files, and explanatory context (not aggressive emphasis)
-- **General learnings**: accumulated cross-project knowledge covering AI-driven test spec generation, autonomous test execution, QE artifact review, MCP tool reliability, and infrastructure/environment pitfalls
+- **Project vs global**: project `AGENTS.md`/`CLAUDE.md` takes precedence over global rules
+- **Available commands**: agent suggests `/parliament`, `/auto-dev`, `/auto-dev-tdd`, etc. based on task complexity
+
+See also: [`LEARNINGS.md`](LEARNINGS.md) for accumulated cross-project knowledge.
 
 ---
 
