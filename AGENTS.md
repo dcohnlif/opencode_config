@@ -18,10 +18,8 @@
 
 I do not care about token cost, execution time, or convenience shortcuts. Always optimize for **robustness and correctness** above all else.
 
-- Never take shortcuts to save tokens, time, or API calls.
-- When multiple implementation paths exist, choose the most robust one, not the easiest or cheapest.
-- Read all relevant files fully rather than skimming. Search thoroughly rather than guessing.
-- When uncertain, investigate and verify rather than making assumptions.
+- Never take shortcuts to save tokens, time, or API calls. When multiple implementation paths exist, choose the most robust one, not the easiest or cheapest.
+- Read all relevant files fully rather than skimming. Search thoroughly rather than guessing. When uncertain, investigate and verify rather than making assumptions.
 - When making LLM API calls for one-time tasks (classification, analysis, generation), always use the most capable model available. Do not use cheaper/faster models to save tokens -- quality of output matters more than cost.
 
 ## Parallelize Independent Work
@@ -40,16 +38,7 @@ If the Google Workspace MCP tools are not available in the current session, info
 
 ## External Actions Require Explicit Permission
 
-NEVER perform actions on external systems (Jira, GitHub, GitLab, Slack, email, or any API that posts/modifies data under the user's identity) without explicit permission. This includes:
-
-- Creating, updating, or commenting on Jira issues
-- Creating pull/merge requests
-- Posting to any communication channel
-- Modifying any resource outside the local filesystem and git
-
-**Always ask first.** Present what you want to do and wait for confirmation. The only exceptions are:
-- Commands that explicitly instruct external actions (e.g., `/file-bug`, `/auto-dev` Phase 4 git push)
-- Read-only queries (searching Jira, fetching docs, reading GitHub code)
+Never modify external systems (Jira, GitHub, GitLab, Slack, email) without asking first. Present what you want to do and wait for confirmation. Exceptions: commands that explicitly instruct external actions (e.g., `/file-bug`, `/auto-dev` Phase 4 git push) and read-only queries.
 
 ## Secrets Protection
 
@@ -57,15 +46,7 @@ Never read `~/.bashrc`, `~/.bash_profile`, `~/.zshrc`, `~/.profile`, or any shel
 
 ## Test Before Push
 
-Whenever you build a new feature, fix a bug, or make any code change that will be pushed to git, always ask the user if they want to run/test the feature before pushing. Follow this flow:
-
-1. Implement the change.
-2. Ask the user: "Want me to run this to test it before pushing?"
-3. If yes: run the feature or test command and show the results.
-4. If the results are not as expected: fix the issue, re-run, and repeat until it works.
-5. Only after the user confirms the results are correct (or the tests pass), proceed with committing and pushing.
-
-This applies to all workflows -- direct prompts, `/push`, and any other code change flow. The `/parliament`, `/auto-dev`, and `/speckit-auto-dev` commands have their own built-in testing phases and are exempt from this rule.
+Whenever you build a new feature, fix a bug, or make any code change that will be pushed to git, always ask the user if they want to run/test the feature before pushing. Run the test, fix failures, and repeat until passing. Only then commit and push. The `/parliament`, `/auto-dev`, and `/speckit-auto-dev` commands have their own built-in testing phases and are exempt from this rule.
 
 ## Project vs Global Rules
 
@@ -93,6 +74,11 @@ When exploring a codebase to gather context or answer a question, scope the sear
 ## Don't Over-Engineer
 
 Only make changes that are directly requested or clearly necessary. Don't add features, refactor surrounding code, introduce abstractions, or build in flexibility that wasn't asked for. A bug fix doesn't need the surrounding code cleaned up. A simple feature doesn't need extra configurability. The right amount of complexity is the minimum needed for the current task.
+
+## Python & LLM SDK Conventions
+
+- When running Python scripts, always use `uv run` (not `python3` or `pip`). For one-off scripts with dependencies, use `uv run --with <package>`. For installed tools, use `uvx`.
+- When making Anthropic API calls from Python, use the Anthropic SDK with Vertex AI backend (`from anthropic import AnthropicVertex`). The credentials are already configured via `GOOGLE_APPLICATION_CREDENTIALS` and `GOOGLE_CLOUD_PROJECT` environment variables.
 
 ## General Learnings
 
