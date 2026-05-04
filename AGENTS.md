@@ -10,7 +10,6 @@
 - **Jira username**: dcohnlif@redhat.com
 - **Team project**: AIPCC (board 3723)
 - **Bug project**: RHOAIENG
-- **Reporter account**: workflow-validation@redhat.com
 
 **What I do**: I lead the AIPCC Workflow Validation team. We build an AI-driven testing platform for Red Hat OpenShift AI (RHOAI). The platform discovers customer usage patterns from Jira/support cases, generates test scenarios as prose Markdown specs, and executes them using an AI agent that drives a real browser via Playwright -- no selectors, no scripted clicks. We validate customer workflows, user journeys, new features, documentation accuracy, and tutorials. Key repos live under `~/GIT/` (workflow-validation-director, workflow-insights, rhoai-customer-workflows, rhoai-documentation-hub).
 
