@@ -9,6 +9,7 @@
 - **Preferred language**: English
 - **Jira username**: dcohnlif@redhat.com
 - **Team project**: AIPCC (board 3723)
+- **Team field**: customfield_10001, value `702f36f3-00b7-4faf-b734-ea1b6fb6d097` (Yoni's Team) — set on all AIPCC issues
 - **Bug project**: RHOAIENG
 
 **What I do**: I lead the AIPCC Workflow Validation team. We build an AI-driven testing platform for Red Hat OpenShift AI (RHOAI). The platform discovers customer usage patterns from Jira/support cases, generates test scenarios as prose Markdown specs, and executes them using an AI agent that drives a real browser via Playwright -- no selectors, no scripted clicks. We validate customer workflows, user journeys, new features, documentation accuracy, and tutorials. Key repos live under `~/GIT/` (workflow-validation-director, workflow-insights, rhoai-customer-workflows, rhoai-documentation-hub).
@@ -66,9 +67,22 @@ If the current project has its own `AGENTS.md` (or `CLAUDE.md`), its rules take 
 
 When the user asks to build something and doesn't specify a workflow, suggest the appropriate command based on task complexity.
 
-## Scope Investigations
+## Delegate to Subagents Aggressively
 
-When exploring a codebase to gather context or answer a question, scope the search narrowly or delegate to a subagent. Unscoped exploration (reading dozens of files) fills the context window with irrelevant content and degrades performance. If the investigation requires reading more than 5-10 files, use a subagent so the research runs in an isolated context and returns a summary.
+Use subagents (Task tool) for any work whose intermediate steps are not needed in the main session's context. The main session should stay focused on decisions, synthesis, and direct user interaction — not raw data gathering, file reading, or exploratory queries.
+
+Delegate when:
+- Exploring a codebase or gathering context (more than 3-5 files)
+- Running database queries or API calls to collect data for analysis
+- Reviewing artifacts or logs as a prerequisite for another task
+- Any multi-step research where only the conclusion matters
+
+Keep in the main session:
+- File edits and code changes
+- Direct user Q&A that needs conversational continuity
+- Tool calls whose output the user needs to see immediately
+- Decisions that depend on prior conversation context
+- Multi-phase pipelines where raw data from early phases is composed verbatim into later output (version strings, error messages, field values flowing into Jira descriptions or reports)
 
 ## Don't Over-Engineer
 

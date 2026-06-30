@@ -14,6 +14,8 @@ This command creates a Story in the AIPCC project based on the user's descriptio
 - **Default Assignee**: dcohnlif@redhat.com (David Cohn Lifshitz)
 - **Default Priority**: Medium
 - **Sprint Field**: customfield_10020
+- **Team Field**: customfield_10001
+- **Team ID**: 702f36f3-00b7-4faf-b734-ea1b6fb6d097 (Yoni's Team)
 
 ## User Input
 
@@ -41,7 +43,7 @@ $ARGUMENTS
    - `issue_type`: `Story`
    - `assignee`: The assignee email (default: `dcohnlif@redhat.com`)
    - `description`: The crafted description
-   - `additional_fields`: `{"priority": {"name": "Medium"}, "customfield_10020": {"id": <sprint_id>}}`
+   - `additional_fields`: `{"priority": {"name": "Medium"}, "customfield_10020": {"id": <sprint_id>}, "customfield_10001": {"id": "702f36f3-00b7-4faf-b734-ea1b6fb6d097"}}`
 
    Where `<sprint_id>` is the numeric ID of the next sprint found in step 4, passed as an integer (not a string).
 
