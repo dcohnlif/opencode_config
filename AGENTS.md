@@ -30,6 +30,29 @@ When launching multiple subagents or tasks that don't depend on each other, run 
 
 If you are unsure about the user's intent, ask a clarifying question rather than guessing. This includes: which file to edit, what approach to take, whether to delete or modify, whether a change is in scope, and what the expected behavior should be. A 10-second question saves minutes of wasted work.
 
+## Jira Access
+
+Jira is accessed via the **Atlassian MCP tools** (prefixed `atlassian_jira_`). The MCP server is pre-configured and authenticated as `dcohnlif@redhat.com`. No manual authentication or API tokens are needed — just call the tools directly.
+
+- **Search issues**: `atlassian_jira_search` with a JQL query (e.g., `project = AIPCC AND assignee = currentUser()`)
+- **Create issues**: `atlassian_jira_create_issue` — for AIPCC stories, always include `"customfield_10001": {"id": "702f36f3-00b7-4faf-b734-ea1b6fb6d097"}` in `additional_fields` to set the Team field.
+- **Update issues**: `atlassian_jira_update_issue`
+- **Transition issues**: `atlassian_jira_get_transitions` first to get transition IDs, then `atlassian_jira_transition_issue`
+- **Sprint operations**: Board ID is `3723`. Use `atlassian_jira_get_sprints_from_board` to find sprints.
+
+Do NOT use `curl`, the REST API directly, or any other method to access Jira. The MCP tools handle authentication automatically.
+
+## GitLab Access
+
+All workflow-validation and rhoai repos are hosted on **GitLab** (`gitlab.com` under `redhat/rhel-ai/workflow-validation/`). SSH access is pre-configured via `git@gitlab.com`.
+
+- **Git operations**: Use standard `git` commands (`git clone`, `git pull`, `git fetch`, `git commit`). SSH keys are already configured.
+- **GitLab CLI**: `glab` is installed and authenticated as `dcohnlif`. Use it for MR operations: `glab mr create`, `glab mr list`, `glab mr view`.
+- **Never auto-push to GitLab** — see the "GitLab: Never Auto-Push" section below.
+- **Internal GitLab** (`gitlab.cee.redhat.com`): SSH access also works. Used for `rhoai-docs-source` only.
+
+Do NOT use WebFetch to access GitLab URLs — use `git clone` (SSH) for repo content, or `glab` for API operations.
+
 ## Google Workspace Access
 
 When the user asks to access, read, or interact with Google Docs, Google Sheets, Google Drive, Gmail, or Google Calendar, NEVER use WebFetch. WebFetch cannot access Google Workspace content (it returns login pages or errors). Instead, always use the Google Workspace MCP tools (prefixed with `google-workspace` or `mcp__google-workspace__`). These tools authenticate via OAuth and provide direct access to the user's Google Workspace content.
