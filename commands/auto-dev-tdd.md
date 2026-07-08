@@ -248,13 +248,13 @@ Mark Phase 3 todo as `completed`. Update `.auto-dev-tdd/state.json`.
 ---
 
 <phase_4>
-## Phase 4: Commit & Push
+## Phase 4: Commit
 
-The purpose of this phase is to safely commit and push all verified changes.
+The purpose of this phase is to safely commit all verified changes.
 
 **Transition Protocol**: Output the following, then mark Phase 4 todo as `in_progress`:
 ```
-## ENTERING PHASE 4: Commit & Push
+## ENTERING PHASE 4: Commit
 
 PRE-FLIGHT CHECK:
 - [x] Phase 0: Codebase mapped
@@ -264,10 +264,14 @@ PRE-FLIGHT CHECK:
 ```
 
 1. **Delegate to Git Agent**: Use the `Task` tool to launch a `general` subagent (the "git agent"). The git agent should:
+   - Run `git remote get-url origin` to detect remote type (GitHub vs GitLab).
    - Run `git status` and `git diff`.
    - Stage changes: `git add -A`.
    - Generate a commit message that references the architecture doc and lists completed tasks. Include `Co-Authored-By: Claude <noreply@anthropic.com>`.
-   - Commit and push.
+   - Commit locally.
+   - Run `git status` to show remaining uncommitted changes.
+   - **If GitHub remote**: push immediately.
+   - **If GitLab remote**: do NOT push. Return to the orchestrator with a summary of what was committed.
 
 2. **Memory Writeback**: Append learnings to the project's `AGENTS.md` (or create one):
    - Test framework and command
@@ -276,7 +280,12 @@ PRE-FLIGHT CHECK:
    - Number of tasks implemented
    - 2-3 bullet points max
 
-**Self-Verification**: Did you delegate git operations to a subagent? If not, go back and correct.
+2. **GitLab Post-Commit**: If the remote is GitLab, after the git agent returns:
+   - Show the user a summary of all commits.
+   - Ask: "Do you want me to push these commits and create a merge request?"
+   - Only push if the user confirms.
+
+**Self-Verification**: Did you delegate git operations to a subagent? For GitLab repos, did you ask the user before pushing? If not, go back and correct.
 
 Mark Phase 4 todo as `completed`. Update `.auto-dev-tdd/state.json`:
 ```json

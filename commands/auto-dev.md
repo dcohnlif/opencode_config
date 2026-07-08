@@ -191,13 +191,13 @@ Mark Phase 3 todo as `completed`. Update `.auto-dev/state.json`:
 ---
 
 <phase_4>
-## Phase 4: Commit & Push
+## Phase 4: Commit
 
-The purpose of this phase is to safely commit and push the verified changes. The git agent is a separate subagent to prevent the orchestrator from accidentally modifying code during git operations.
+The purpose of this phase is to safely commit the verified changes. The git agent is a separate subagent to prevent the orchestrator from accidentally modifying code during git operations.
 
 **Transition Protocol**: Output the following, then mark Phase 4 todo as `in_progress`:
 ```
-## ENTERING PHASE 4: Commit & Push
+## ENTERING PHASE 4: Commit
 
 PRE-FLIGHT CHECK:
 - [x] Phase 0: Codebase mapped
@@ -208,17 +208,26 @@ PRE-FLIGHT CHECK:
 ```
 
 1. **Delegate to Git Agent**: Use the `Task` tool to launch a `general` subagent (the "git agent") to handle all git operations. Provide it with the full context of what was changed and why. The git agent should:
+   - Run `git remote get-url origin` to detect remote type (GitHub vs GitLab).
    - Run `git status` and `git diff`.
    - Stage changes: `git add -A`.
    - Generate a detailed commit message including `Co-Authored-By: Claude <noreply@anthropic.com>`.
-   - Commit and push.
+   - Commit locally.
+   - Run `git status` to show remaining uncommitted changes.
+   - **If GitHub remote**: push immediately.
+   - **If GitLab remote**: do NOT push. Return to the orchestrator with a summary of what was committed.
 
 2. **Memory Writeback**: After the git agent completes successfully:
    - If the project has an `AGENTS.md` file, append a brief section with learnings from this session (e.g., detected test command, formatter, key patterns, architecture decisions).
    - If no `AGENTS.md` exists, create one with these learnings.
    - Keep entries concise -- 2-3 bullet points max per session.
 
-**Self-Verification**: Before marking this phase complete, confirm: Did you delegate git operations to a subagent via the Task tool (not run git commands directly)? If not, go back and do it correctly.
+2. **GitLab Post-Commit**: If the remote is GitLab, after the git agent returns:
+   - Show the user a summary of all commits.
+   - Ask: "Do you want me to push these commits and create a merge request?"
+   - Only push if the user confirms.
+
+**Self-Verification**: Before marking this phase complete, confirm: Did you delegate git operations to a subagent via the Task tool (not run git commands directly)? For GitLab repos, did you ask the user before pushing? If not, go back and do it correctly.
 
 Mark Phase 4 todo as `completed`. Update `.auto-dev/state.json`:
 ```json

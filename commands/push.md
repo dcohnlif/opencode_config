@@ -1,28 +1,39 @@
 ---
-description: Create a detailed commit message and push to main.
+description: Create a detailed commit message and commit. For GitLab repos, ask before pushing.
 ---
-# Commit and Push Workflow
+# Commit Workflow
 
-1. **Analyze Current State**:
+1. **Detect Remote Type**:
+   - Run `git remote get-url origin`.
+   - If the URL contains `gitlab`, set `IS_GITLAB=true`.
+   - If the URL contains `github`, set `IS_GITLAB=false`.
+
+2. **Analyze Current State**:
    - Run `git status` and `git diff`.
    - Run `git log -3 --oneline` to match the local project style.
 
-2. **Stage Changes**:
+3. **Stage Changes**:
    - `git add -A`. 
    - *Note: OpenCode's global 'ask' permission for `.env` files will automatically prevent these from being staged without your confirmation.*
 
-3. **Generate Message**:
+4. **Generate Message**:
    - Ask yourself (Claude 4.6): "Based on the diff and our conversation history, determine the `<type>` (feat, fix, refactor, etc.) and write a detailed commit message."
    - Ensure you include these footers:
       - `Co-Authored-By: Claude <noreply@anthropic.com>`
 
-4. **Execute Commit**:
+5. **Execute Commit**:
    - Run: `git commit -m "[Generated Message]"` 
 
-5. **Push to Main**:
-   - Check branch: `git branch --show-current`.
-   - If current branch is `main`, run `git push origin main`.
-   - If not on `main`, stop and ask for permission.
+6. **Post-Commit Summary**:
+   - Run `git status` to show any remaining uncommitted changes in the repo.
+   - Run `git log -1` and show the commit hash.
 
-6. **Verify**:
-   - Run `git log -1` and show me the hash.
+7. **Push**:
+   - If `IS_GITLAB=false` (GitHub):
+     - Check branch: `git branch --show-current`.
+     - If current branch is `main`, run `git push origin main`.
+     - If not on `main`, stop and ask for permission.
+   - If `IS_GITLAB=true` (GitLab):
+     - Do NOT push automatically.
+     - Ask the user: "Do you want me to push these commits and create a merge request?"
+     - Only push if the user confirms. Push to a feature branch and create an MR.

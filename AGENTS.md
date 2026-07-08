@@ -38,7 +38,22 @@ If the Google Workspace MCP tools are not available in the current session, info
 
 ## External Actions Require Explicit Permission
 
-Never modify external systems (Jira, GitHub, GitLab, Slack, email) without asking first. Present what you want to do and wait for confirmation. Exceptions: commands that explicitly instruct external actions (e.g., `/file-bug`, `/auto-dev` Phase 4 git push) and read-only queries.
+Never modify external systems (Jira, GitHub, GitLab, Slack, email) without asking first. Present what you want to do and wait for confirmation. Exceptions: commands that explicitly instruct external actions (e.g., `/file-bug`) and read-only queries.
+
+## GitLab: Never Auto-Push
+
+**CRITICAL**: Never automatically push commits to GitLab remotes. GitLab repos require merge requests with pipeline runs and approvals before merging. The workflow for GitLab repos is:
+
+1. **Commit locally** — commit changes to the local branch as usual.
+2. **Summarize** — after committing, show a summary of all uncommitted changes in the repo.
+3. **Ask** — ask the user: "Do you want me to push these commits and create a merge request?"
+4. **Only push if the user confirms** — then push to a feature branch and create an MR.
+
+This applies to ALL sessions and ALL commands (`/auto-dev`, `/parliament`, `/auto-dev-tdd`, `/speckit-auto-dev`, `/push`, and ad-hoc work). No exceptions.
+
+**GitHub repos are exempt** — for GitHub remotes (e.g., this opencode config repo), commit and push immediately after any change.
+
+To detect which remote type you're on: `git remote get-url origin`. If it contains `gitlab`, follow the GitLab rules. If it contains `github`, push immediately.
 
 ## Secrets Protection
 

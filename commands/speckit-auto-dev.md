@@ -166,8 +166,7 @@ Run the project's full test suite. If the project has an end-to-end or integrati
 
 ### Step 2: If Tests Pass
 
-1. Use the `Task` tool to launch a `general` subagent (git agent) to push all commits to the remote:
-   - `git push origin [branch]`
+1. **Detect Remote Type**: Run `git remote get-url origin` to determine if this is a GitHub or GitLab repo.
 
 2. **Memory Writeback**: Append learnings to the project's `AGENTS.md` (or create one):
    - Detected test command, formatter
@@ -175,15 +174,30 @@ Run the project's full test suite. If the project has an end-to-end or integrati
    - Key patterns discovered
    - 2-3 bullet points max
 
-3. Output a final summary:
-   ```
-   ## AUTO-DEV-SPECKIT COMPLETE
-   
-   Tasks completed: [N]/[N]
-   Commits: [N]
-   Integration test: PASSED
-   Pushed to: origin/[branch]
-   ```
+3. **If GitHub remote**: Use the `Task` tool to launch a `general` subagent (git agent) to push all commits:
+   - `git push origin [branch]`
+   - Output a final summary:
+     ```
+     ## AUTO-DEV-SPECKIT COMPLETE
+     
+     Tasks completed: [N]/[N]
+     Commits: [N]
+     Integration test: PASSED
+     Pushed to: origin/[branch]
+     ```
+
+4. **If GitLab remote**: Do NOT push automatically.
+   - Output a final summary:
+     ```
+     ## AUTO-DEV-SPECKIT COMPLETE
+     
+     Tasks completed: [N]/[N]
+     Commits: [N] (local only)
+     Integration test: PASSED
+     ```
+   - Show the user a summary of all uncommitted changes in the repo.
+   - Ask: "Do you want me to push these commits and create a merge request?"
+   - Only push if the user confirms.
 
 ### Step 3: If Tests Fail
 
@@ -202,7 +216,7 @@ Mark the "Integration Test & Final Push" todo as `completed`.
 
 - **One task at a time**. Each task gets its own complete auto-dev cycle. Do not batch multiple tasks into one implementation pass.
 - **Commit after each task**. This creates an atomic, revertable history. Each commit references the spec-kit task ID.
-- **Push only after integration test**. Individual tasks are committed locally but only pushed to remote after the final integration test passes.
+- **Push only after integration test and user confirmation (GitLab)**. Individual tasks are committed locally. For GitHub repos, push after integration test passes. For GitLab repos, ask the user before pushing.
 - **Delegate everything**. Implementation goes to the coding subagent. Code review goes to the auditor. Git operations go to the git subagent. The orchestrator's job is to coordinate.
 - **Respect task dependencies**. Process tasks in order. Tasks without the `[P]` flag may depend on prior tasks. Do not reorder.
 - **Update tasks.md as you go**. Mark each task `[x]` in the feature's `tasks.md` after it passes its tests and is committed. This enables resumability if the session is interrupted.
