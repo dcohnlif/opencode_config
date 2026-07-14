@@ -53,6 +53,18 @@ All workflow-validation and rhoai repos are hosted on **GitLab** (`gitlab.com` u
 
 Do NOT use WebFetch to access GitLab URLs — use `git clone` (SSH) for repo content, or `glab` for API operations.
 
+## Slack Access
+
+Slack is accessed via the **Slack MCP tools** (prefixed `slack_`). The MCP server is pre-configured and authenticated. No manual authentication needed — just call the tools directly.
+
+- **Read a thread**: `slack_get_thread` with `channel_id` and `thread_ts`. Extract these from Slack URLs: `https://redhat-internal.slack.com/archives/<channel_id>/p<thread_ts>` (insert a `.` before the last 6 digits of the timestamp, e.g., `p1783898898889269` → `1783898898.889269`).
+- **Read channel history**: `slack_get_channel_history` with `channel_id`
+- **Search messages**: `slack_search_messages` with a query string
+- **Post a message**: `slack_post_message` (requires explicit user permission — see External Actions rule below)
+- **Find a channel**: `slack_get_channel_id_by_name` with the channel name
+
+Do NOT use WebFetch to access Slack URLs — it cannot authenticate. Always use the Slack MCP tools.
+
 ## Google Workspace Access
 
 When the user asks to access, read, or interact with Google Docs, Google Sheets, Google Drive, Gmail, or Google Calendar, NEVER use WebFetch. WebFetch cannot access Google Workspace content (it returns login pages or errors). Instead, always use the Google Workspace MCP tools (prefixed with `google-workspace` or `mcp__google-workspace__`). These tools authenticate via OAuth and provide direct access to the user's Google Workspace content.
