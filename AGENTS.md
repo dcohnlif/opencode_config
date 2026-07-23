@@ -138,6 +138,16 @@ Keep in the main session:
 
 Only make changes that are directly requested or clearly necessary. Don't add features, refactor surrounding code, introduce abstractions, or build in flexibility that wasn't asked for. A bug fix doesn't need the surrounding code cleaned up. A simple feature doesn't need extra configurability. The right amount of complexity is the minimum needed for the current task.
 
+## Workflow Validation Credentials
+
+The following environment variables are set globally and available in all sessions. Do not ask the user for these values — they are already configured.
+
+- **`JIRA_TEAM_EMAIL`** — Email for Jira API access used by workflow-validation repos (distinct from the MCP-based Jira access above, which is for interactive use).
+- **`JIRA_TEAM_PAT`** — Personal access token for Jira API access used by workflow-validation repos.
+- **`JENKINS_TOKEN`** — Token for accessing Jenkins at `jenkins-csb-rhods-opendatascience.dno.corp.redhat.com`.
+
+These are used by the workflow-validation tooling (director, RCA agent, insights) for programmatic Jira and Jenkins access. When scripts or configs in those repos reference Jira credentials or Jenkins tokens, use these env vars — do not hardcode values or prompt the user.
+
 ## Python & LLM SDK Conventions
 
 - When running Python scripts, always use `uv run` (not `python3` or `pip`). For one-off scripts with dependencies, use `uv run --with <package>`. For installed tools, use `uvx`.
