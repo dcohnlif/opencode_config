@@ -138,6 +138,9 @@ Keep in the main session:
 
 Only make changes that are directly requested or clearly necessary. Don't add features, refactor surrounding code, introduce abstractions, or build in flexibility that wasn't asked for. A bug fix doesn't need the surrounding code cleaned up. A simple feature doesn't need extra configurability. The right amount of complexity is the minimum needed for the current task.
 
+- Clean up only your own mess: remove imports, variables, and functions that your changes made unused. Don't remove pre-existing dead code unless asked — mention it instead.
+- Match the existing code style even if you'd do it differently. Every changed line should trace directly to the user's request.
+
 ## Workflow Validation Credentials
 
 The following environment variables are set globally and available in all sessions. Do not ask the user for these values — they are already configured.
