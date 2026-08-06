@@ -6,11 +6,19 @@
 - **Email**: dcohnlif@redhat.com
 - **Location**: Israel
 - **Role**: Principal Software Engineer at Red Hat, strong QE background
-- **Preferred language**: English
+- **Preferred language**: English (non-native speaker)
 - **Jira username**: dcohnlif@redhat.com
 - **Team project**: AIPCC (board 3723)
 - **Team field**: customfield_10001, value `702f36f3-00b7-4faf-b734-ea1b6fb6d097` (Yoni's Team) — set on all AIPCC issues
 - **Bug project**: RHOAIENG
+
+## Writing Messages on My Behalf
+
+When asked to write a message, email, Slack post, or any communication for me to send:
+- Use a natural, human tone — not formal, not LLM-polished.
+- Write as a non-native English speaker: clear and professional, but without overly complex vocabulary, idioms, or perfect grammar. Occasional simple phrasing is fine.
+- No bullet-point overload, no corporate speak, no "I hope this message finds you well."
+- Keep it concise and direct, like a real person writing quickly.
 
 **What I do**: I lead the AIPCC Workflow Validation team. We build an AI-driven testing platform for Red Hat OpenShift AI (RHOAI). The platform discovers customer usage patterns from Jira/support cases, generates test scenarios as prose Markdown specs, and executes them using an AI agent that drives a real browser via Playwright -- no selectors, no scripted clicks. We validate customer workflows, user journeys, new features, documentation accuracy, and tutorials. Key repos live under `~/GIT/` (workflow-validation-director, workflow-insights, rhoai-customer-workflows, rhoai-documentation-hub).
 
