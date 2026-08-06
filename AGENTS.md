@@ -159,6 +159,8 @@ The following environment variables are set globally and available in all sessio
 
 These are used by the workflow-validation tooling (director, RCA agent, insights) for programmatic Jira and Jenkins access. When scripts or configs in those repos reference Jira credentials or Jenkins tokens, use these env vars — do not hardcode values or prompt the user.
 
+- **Running workflows**: `~/GIT/scripts/run-journey.sh <journey-name> [journey-name...]`. Available journeys are in `~/GIT/rhoai-customer-workflows/tests/user-journeys/`.
+
 ## Python & LLM SDK Conventions
 
 - When running Python scripts, always use `uv run` (not `python3` or `pip`). For one-off scripts with dependencies, use `uv run --with <package>`. For installed tools, use `uvx`.
