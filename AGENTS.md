@@ -98,6 +98,15 @@ This applies to ALL sessions and ALL commands (`/auto-dev`, `/parliament`, `/aut
 
 To detect which remote type you're on: `git remote get-url origin`. If it contains `gitlab`, follow the GitLab rules. If it contains `github`, push immediately.
 
+## GitLab: Always Add the "ai-review" Label to MRs
+
+**CRITICAL**: Whenever any session creates or updates a merge request on `gitlab.com`, always add the `ai-review` label to that MR. This label invokes the air-reviewer. This applies to ALL sessions and ALL commands — no exceptions.
+
+- **On create**: include the label when creating the MR, e.g. `glab mr create --label ai-review ...`.
+- **On update**: if the MR does not already have the label, add it, e.g. `glab mr update <id> --label ai-review` (or the label-add equivalent). Adding it when already present is harmless.
+- This is subject to the same "never auto-push" rule above — only create/update the MR (and thus apply the label) after the user confirms the push.
+- Applies to `gitlab.com` MRs. Internal GitLab (`gitlab.cee.redhat.com`) is not required unless the user asks.
+
 ## Secrets Protection
 
 Never read `~/.bashrc`, `~/.bash_profile`, `~/.zshrc`, `~/.profile`, or any shell config file unless the user explicitly asks. These files contain secrets (API tokens, passwords, PATs). The same applies to `~/.env`, `~/.netrc`, `~/.ssh/`, `~/.aws/`, and `~/.config/gcloud/`. If you need a specific value from one of these files, ask the user to provide it rather than reading the file directly.
