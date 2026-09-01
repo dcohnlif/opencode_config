@@ -155,7 +155,7 @@ The following environment variables are set globally and available in all sessio
 
 - **`JIRA_TEAM_EMAIL`** — Email for Jira API access used by workflow-validation repos (distinct from the MCP-based Jira access above, which is for interactive use).
 - **`JIRA_TEAM_PAT`** — Personal access token for Jira API access used by workflow-validation repos.
-- **`JENKINS_TOKEN`** — Token for accessing Jenkins at `jenkins-csb-rhods-opendatascience.dno.corp.redhat.com`.
+- **`JENKINS_TOKEN`** — Token for accessing the internal Jenkins instance (URL available via VPN/SSO).
 
 These are used by the workflow-validation tooling (director, RCA agent, insights) for programmatic Jira and Jenkins access. When scripts or configs in those repos reference Jira credentials or Jenkins tokens, use these env vars — do not hardcode values or prompt the user.
 
