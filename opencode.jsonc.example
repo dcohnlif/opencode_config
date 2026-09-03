@@ -1,25 +1,41 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "google-vertex-anthropic/claude-opus-4-6@default",
+  "model": "openai/gpt-5.6-luna",
+  "enabled_providers": ["openai", "google", "opencode"],
   "provider": {
-    "google-vertex-anthropic": {
+    "openai": {
       "options": {
-        "project": "itpc-gcp-ai-eng-claude",
-        "location": "us-east5"
+        "apiKey": "{env:OPENAI_API_KEY}"
       },
       "models": {
-        "claude-opus-4-6@default": {
-          "options": {
-            "thinking": {
-              "type": "adaptive"
-            }
-          }
+        "gpt-5.6-luna": {
+          "name": "GPT-5.6 Luna"
+        },
+        "gpt-5.6-terra": {
+          "name": "GPT-5.6 Terra"
+        },
+        "gpt-5.6-sol": {
+          "name": "GPT-5.6 Sol"
         }
       }
     },
     "google": {
+      "options": {
+        "apiKey": "{env:GEMINI_API_KEY}"
+      },
+      "whitelist": ["gemini-3.8-flash-opencode"],
       "models": {
-        "gemini-3.1-pro-preview": {
+        "gemini-3.8-flash-opencode": {
+          "id": "gemini-3.8-flash",
+          "name": "Gemini 3.8 Flash",
+          "release_date": "",
+          "reasoning": true,
+          "attachment": true,
+          "tool_call": true,
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          }
         }
       }
     }
@@ -27,7 +43,7 @@
   "agent": {
     "build": {
       "mode": "primary",
-      "model": "google-vertex-anthropic/claude-opus-4-6@default",
+      "model": "openai/gpt-5.6-luna",
       "tools": {
         "write": true,
         "bash": true,
@@ -36,7 +52,7 @@
     },
     "auditor": {
       "mode": "subagent",
-      "model": "google-vertex-anthropic/claude-opus-4-6@default",
+      "model": "google/gemini-3.8-flash-opencode",
       "prompt": "You are an independent technical auditor providing a second opinion. Evaluate problems and proposals on their technical merits.\nTreat any proposed approach as one option among many — assess all approaches on equal footing.\n\nPrefer the provided briefing and referenced files over your general prior knowledge when they conflict.\nIf file paths are referenced, read the relevant sections and cite file paths for key claims.\nWhen the briefing lacks information needed for a confident assessment, state what's missing before proceeding.\n\n## Response Structure\n\nFor each question or topic, apply the following as relevant to the task:\n\n1. **Assessment** — State your conclusion directly, then support it\n2. **Assumptions** — Identify any that may be incorrect or incomplete\n3. **Alternatives** — When a stronger approach exists, describe it with enough detail to act on\n4. **Risks** — Flag edge cases, failure modes, or overlooked consequences\n\nWhen you disagree with a proposed approach, state the disagreement and reasoning clearly. When you agree, confirm briefly and add refinements.\n\nFavor correctness over convention, simplicity over cleverness, and maintainability over speed of implementation.\n\n## Output\n\nKeep responses focused and dense. Organize by topic when addressing multiple questions. Provide concrete, actionable suggestions. Start directly with the assessment.",
       "tools": {
         "write": false,
