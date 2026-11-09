@@ -8,8 +8,8 @@
 - **Role**: Principal Software Engineer at Red Hat, strong QE background
 - **Preferred language**: English (non-native speaker)
 - **Jira username**: dcohnlif@redhat.com
-- **Team project**: AIPCC (board 3723)
-- **Team field**: customfield_10001, value `702f36f3-00b7-4faf-b734-ea1b6fb6d097` (Yoni's Team) — set on all AIPCC issues
+- **Team project**: RHAI (board 3723)
+- **Team field**: customfield_10001, value `702f36f3-00b7-4faf-b734-ea1b6fb6d097` (Yoni's Team) — set on all RHAI issues
 - **Bug project**: RHOAIENG
 
 ## Default Prose Style
@@ -34,7 +34,7 @@ When asked to write a message, email, Slack post, or any communication for me to
 - No bullet-point overload, no corporate speak, no "I hope this message finds you well."
 - Keep it concise and direct, like a real person writing quickly.
 
-**What I do**: I lead the AIPCC Workflow Validation team. We build an AI-driven testing platform for Red Hat OpenShift AI (RHOAI). The platform discovers customer usage patterns from Jira/support cases, generates test scenarios as prose Markdown specs, and executes them using an AI agent that drives a real browser via Playwright -- no selectors, no scripted clicks. We validate customer workflows, user journeys, new features, documentation accuracy, and tutorials. Key repos live under `~/GIT/` (workflow-validation-director, workflow-insights, rhoai-customer-workflows, rhoai-documentation-hub).
+**What I do**: I lead the RHAI Workflow Validation team. We build an AI-driven testing platform for Red Hat OpenShift AI (RHOAI). The platform discovers customer usage patterns from Jira/support cases, generates test scenarios as prose Markdown specs, and executes them using an AI agent that drives a real browser via Playwright -- no selectors, no scripted clicks. We validate customer workflows, user journeys, new features, documentation accuracy, and tutorials. Key repos live under `~/GIT/` (workflow-validation-director, workflow-insights, rhoai-customer-workflows, rhoai-documentation-hub).
 
 ## Priority: Correctness Over Cost
 
@@ -56,8 +56,8 @@ If you are unsure about the user's intent, ask a clarifying question rather than
 
 Jira is accessed via the **Atlassian MCP tools** (prefixed `atlassian_jira_`). The MCP server is pre-configured and authenticated as `dcohnlif@redhat.com`. No manual authentication or API tokens are needed — just call the tools directly.
 
-- **Search issues**: `atlassian_jira_search` with a JQL query (e.g., `project = AIPCC AND assignee = currentUser()`)
-- **Create issues**: `atlassian_jira_create_issue` — for AIPCC stories, always include `"customfield_10001": {"id": "702f36f3-00b7-4faf-b734-ea1b6fb6d097"}` in `additional_fields` to set the Team field.
+- **Search issues**: `atlassian_jira_search` with a JQL query (e.g., `project = RHAI AND assignee = currentUser()`)
+- **Create issues**: `atlassian_jira_create_issue` — for RHAI stories, always include `"customfield_10001": {"id": "702f36f3-00b7-4faf-b734-ea1b6fb6d097"}` in `additional_fields` to set the Team field.
 - **Update issues**: `atlassian_jira_update_issue`
 - **Transition issues**: `atlassian_jira_get_transitions` first to get transition IDs, then `atlassian_jira_transition_issue`
 - **Sprint operations**: Board ID is `3723`. Use `atlassian_jira_get_sprints_from_board` to find sprints.
@@ -142,7 +142,7 @@ If the current project has its own `AGENTS.md` (or `CLAUDE.md`), its rules take 
 | `/auto-dev-tdd` | Medium-to-large features with an architecture doc, test-driven |
 | `/speckit-auto-dev` | Batch implementation of spec-kit task lists |
 | `/file-bug` | File a verified RHOAIENG bug from test failure artifacts |
-| `/jira-story` | Create an AIPCC story assigned to the next sprint |
+| `/jira-story` | Create an RHAI story assigned to the current sprint |
 | `/kvetch` | Fun code review by Rivka the Yiddishe Mame |
 | `/explain` | Explain a file/function/module with dependency diagram |
 

@@ -80,7 +80,7 @@ Run `opencode` in any project directory. Type `/` to see all available commands.
 
 | Command | Description |
 |---|---|
-| `/jira-story` | Create an AIPCC Story with auto-generated description, assigned to next sprint on board 3723 |
+| `/jira-story` | Create an RHAI Story with auto-generated description, assigned to the current sprint on board 3723 |
 | `/file-bug` | File a verified RHOAIENG bug. Includes: Playwright UI reproduction, DOM snapshot capture, version-matched RHOAI doc verification, duplicate/history detection, impact analysis, and human approval gate. 12 phases. |
 
 ### BMAD agents (persona-driven)
@@ -170,7 +170,7 @@ All commands are mirrored in `~/.claude/commands/` for Claude Code. The followin
 
 The following rules apply to every OpenCode session:
 
-- **Identity**: user is David, English, Jira: dcohnlif@redhat.com, team project AIPCC, bug project RHOAIENG
+- **Identity**: user is David, English, Jira: dcohnlif@redhat.com, team project RHAI, bug project RHOAIENG
 - **Correctness over cost**: never take shortcuts; prefer thorough approaches
 - **When in doubt, ask**: clarify intent before guessing
 - **Google Workspace**: always use MCP tools, never WebFetch; inform user if MCP unavailable
