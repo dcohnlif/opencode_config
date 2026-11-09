@@ -12,6 +12,20 @@
 - **Team field**: customfield_10001, value `702f36f3-00b7-4faf-b734-ea1b6fb6d097` (Yoni's Team) — set on all AIPCC issues
 - **Bug project**: RHOAIENG
 
+## Default Prose Style
+
+This applies to ALL human-facing text you write (responses, summaries, MR descriptions, Jira issues, docs) unless a more specific rule in this file overrides it — e.g., "Writing Messages on My Behalf".
+
+- Audience: a busy engineer skimming quickly.
+- Prefer prose over bullets; use lists only for real enumerations (steps, options, items).
+- Short sentences, everyday words. Banned: "leverage", "utilize", "delve", "in conclusion", "I hope this message finds you well".
+- One idea per paragraph, 2-4 sentences. Lead with the conclusion; supporting detail after.
+- Active voice, address the reader ("you", "we").
+- Explain acronyms on first use.
+- Bold only what must not be missed. No decorative formatting, no emojis unless requested.
+
+Does NOT apply to: code, code comments, commit messages — those follow code conventions.
+
 ## Writing Messages on My Behalf
 
 When asked to write a message, email, Slack post, or any communication for me to send:

@@ -1,18 +1,18 @@
 ---
-description: Create a Jira Story in AIPCC project, assigned to you, added to the next sprint.
+description: Create a Jira Story in RHAI, assigned to you, and add it to the current sprint by default.
 ---
 
 # Create Jira Story
 
-This command creates a Story in the AIPCC project based on the user's description. It writes a detailed summary and description, assigns it, and adds it to the next sprint on the team's scrum board.
+This command creates a Story in the RHAI project based on the user's description. It writes a detailed summary and description, assigns it, and adds it to the current sprint by default. If the user specifies a team, preserve that team and use the next sprint.
 
 ## Configuration
 
-- **Project**: AIPCC
+- **Project**: RHAI
 - **Board ID**: 3723
 - **Issue Type**: Story
 - **Default Assignee**: dcohnlif@redhat.com (David Cohn Lifshitz)
-- **Default Priority**: Medium
+- **Default Priority**: Normal (the valid standard priority in RHAI)
 - **Sprint Field**: customfield_10020
 - **Team Field**: customfield_10001
 - **Team ID**: 702f36f3-00b7-4faf-b734-ea1b6fb6d097 (Yoni's Team)
@@ -35,23 +35,25 @@ $ARGUMENTS
    - **Acceptance Criteria**: A checklist of conditions that must be met for this story to be considered complete.
    - **Notes**: Any relevant technical considerations or constraints.
 
-4. **Find the Next Sprint**: Use the `atlassian_jira_get_sprints_from_board` tool with board_id `3723` and state `future` to find the next sprint. If no future sprint exists, check for the `active` sprint instead.
+4. **Find the Sprint**: Use board `3723`. If the user did not specify a team, find the `active` sprint; if none exists, use the next `future` sprint. If the user specified a team, find the next `future` sprint; if none exists, use the `active` sprint.
 
 5. **Create the Issue**: Use the `atlassian_jira_create_issue` tool with:
-   - `project_key`: `AIPCC`
+   - `project_key`: `RHAI`
    - `summary`: The crafted summary
    - `issue_type`: `Story`
    - `assignee`: The assignee email (default: `dcohnlif@redhat.com`)
    - `description`: The crafted description
-   - `additional_fields`: `{"priority": {"name": "Medium"}, "customfield_10020": {"id": <sprint_id>}, "customfield_10001": {"id": "702f36f3-00b7-4faf-b734-ea1b6fb6d097"}}`
+   - `additional_fields`: `{"priority": {"name": "Normal"}, "customfield_10001": "702f36f3-00b7-4faf-b734-ea1b6fb6d097"}` when no team is specified; if the user specifies a team, preserve it and use its team ID.
 
-   Where `<sprint_id>` is the numeric ID of the next sprint found in step 4, passed as an integer (not a string).
+6. **Add the issue to the sprint**: After creation, use `atlassian_jira_add_issues_to_sprint` with the new issue key and the sprint ID found in step 4. The Jira connector does not accept the Sprint field in the create request.
 
-6. **Report**: Output the created issue key, summary, assignee, sprint name, and a direct link:
+   Pass the sprint ID returned in step 4 as a string to `atlassian_jira_add_issues_to_sprint`.
+
+7. **Report**: Output the created issue key, summary, assignee, sprint name, and a direct link:
    ```
-   Created: AIPCC-XXXXX
+   Created: RHAI-XXXXX
    Summary: [summary]
    Assignee: [name]
    Sprint: [sprint name]
-   Link: https://redhat.atlassian.net/browse/AIPCC-XXXXX
+   Link: https://redhat.atlassian.net/browse/RHAI-XXXXX
    ```
