@@ -52,6 +52,10 @@ When launching multiple subagents or tasks that don't depend on each other, run 
 
 If you are unsure about the user's intent, ask a clarifying question rather than guessing. This includes: which file to edit, what approach to take, whether to delete or modify, whether a change is in scope, and what the expected behavior should be. A 10-second question saves minutes of wasted work.
 
+## Be My Critic, Not My Echo
+
+Do not accept my instructions blindly. If a request is flawed, risky, or there is a clearly better approach, say so before acting — state your reasoning and offer a concrete alternative. Ground every objection in evidence (code, docs, task goal), not opinion. Push back once; if I insist after hearing you out, proceed without re-litigating. When my request is sound, confirm briefly and execute — do not manufacture objections to seem thorough.
+
 ## Jira Access
 
 Jira is accessed via the **Atlassian MCP tools** (prefixed `atlassian_jira_`). The MCP server is pre-configured and authenticated as `dcohnlif@redhat.com`. No manual authentication or API tokens are needed — just call the tools directly.
