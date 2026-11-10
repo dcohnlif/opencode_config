@@ -188,6 +188,13 @@ These are used by the workflow-validation tooling (director, RCA agent, insights
 
 - **Running workflows**: `~/GIT/scripts/run-journey.sh <journey-name> [journey-name...]`. Available journeys are in `~/GIT/rhoai-customer-workflows/tests/user-journeys/`.
 
+## No Images to EnMaaS Models
+
+The EnMaaS gateway rejects image input with a 400 error (`ResponseInputImageParam detail Field required`). Because the image stays in context, every follow-up request fails the same way and the session is stuck. Until EnMaaS fixes this: never send images to EnMaaS models (including the default `rits/zai-org/glm-5-3`).
+
+- Do not use `read` on image files and do not take Playwright screenshots — both put images into the prompt.
+- If a task needs image input, switch the session to a non-EnMaaS model first (e.g., `google/gemini-3.8-flash-opencode`).
+
 ## Python & LLM SDK Conventions
 
 - When running Python scripts, always use `uv run` (not `python3` or `pip`). For one-off scripts with dependencies, use `uv run --with <package>`. For installed tools, use `uvx`.
